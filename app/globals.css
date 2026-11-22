@@ -1,0 +1,117 @@
+@import "tailwindcss";
+@import "./theme.css";
+
+/* Expose the theme variables to Tailwind (bg-bg, text-muted, bg-wa, rounded-card…) */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-platinum: var(--platinum);
+  --color-accent: var(--accent);
+  --color-wa: var(--wa);
+  --color-wa-ink: var(--wa-ink);
+  --color-danger: var(--danger);
+  --color-todo-bg: var(--todo-bg);
+  --color-todo-ink: var(--todo-ink);
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-heading);
+  --radius-card: var(--radius);
+}
+
+html {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: 72px; /* so #anchors aren't hidden under the header */
+}
+
+body {
+  margin: 0;
+  line-height: 1.55;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+[aria-invalid="true"] {
+  border-color: var(--danger) !important;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Reusable pieces (kept small; most styling is Tailwind classes) */
+@layer components {
+  .container-page {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 640px) {
+    .container-page {
+      padding-inline: 1.5rem;
+    }
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 48px; /* comfortable tap target */
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+    text-decoration: none;
+    text-align: center;
+  }
+  .btn-primary {
+    background: var(--wa);
+    color: var(--wa-ink);
+  }
+  .btn-ghost {
+    border: 1px solid rgb(255 255 255 / 0.35);
+    color: var(--ink);
+  }
+
+  .kicker {
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .to-come {
+    display: inline-block;
+    background: var(--todo-bg);
+    color: var(--todo-ink);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    padding: 0.125rem 0.5rem;
+    border-radius: 6px;
+  }
+}

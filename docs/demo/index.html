@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Platinum Marketing Agency · More Customers for Kenyan Businesses (Draft)</title>
+<meta name="description" content="Websites, WhatsApp automations and AI visibility for Kenyan service businesses. Draft demo.">
+<script>
+(function(){
+  try{
+    var c=document.createElement('canvas');
+    var gl=c.getContext('webgl')||c.getContext('experimental-webgl');
+    var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var mem=navigator.deviceMemory, sd=navigator.connection&&navigator.connection.saveData;
+    if(gl&&!rm&&!(mem&&mem<4)&&!sd) document.documentElement.classList.add('has3d');
+  }catch(e){}
+})();
+</script>
+<style>
+/* THEME: placeholder brand. Platinum colours and fonts are not decided yet */
+:root{
+  --bg:#0a0f1e; --ink:#f3f5f8; --muted:#a9b1c1;
+  --platinum:#d9dde3;       /* PLACEHOLDER brand colour */
+  --accent:#7cc4ff;         /* PLACEHOLDER accent */
+  --wa:#25D366;             /* WhatsApp green */
+  --font: system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.5}
+a{color:inherit}
+.draft{background:#ffd54a;color:#222;font-size:13px;padding:6px 12px;text-align:center}
+.bar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:12px 5vw;background:rgba(10,15,30,.85);backdrop-filter:blur(8px)}
+.has3d .bar{position:relative}
+.logo{font-weight:800;letter-spacing:.12em;font-size:15px}
+.logo small{display:block;font-weight:500;letter-spacing:.02em;font-size:10px;color:var(--muted)}
+.btn{display:inline-block;background:var(--wa);color:#04210f;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px;font-size:15px}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid rgba(255,255,255,.35)}
+.bar .btn{padding:8px 14px;font-size:13px}
+
+/* JOURNEY */
+.journey{position:relative}
+.has3d .journey{height:900vh}
+.pin{position:relative}
+.has3d .pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+#stage3d{display:none}
+.has3d #stage3d{display:block;position:absolute;inset:0;width:100%;height:100%}
+.panel{padding:48px 6vw}
+.has3d .panel{position:absolute;left:6vw;top:50%;width:min(440px,38vw);transform:translateY(-40%);opacity:0;transition:opacity .45s,transform .45s;pointer-events:none;padding:0}
+.has3d .panel.show{opacity:1;transform:translateY(-50%);pointer-events:auto}
+.kicker{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:700}
+h1,h2{line-height:1.12;margin:.3em 0 .4em}
+h1{font-size:clamp(32px,5vw,58px)}
+h2{font-size:clamp(26px,3.6vw,42px)}
+.panel p{color:var(--muted);font-size:17px;margin:.4em 0 1em}
+.panel ul{padding-left:0;list-style:none;margin:0 0 1em}
+.panel li{margin:.5em 0;padding-left:28px;position:relative;color:var(--ink)}
+.panel li:before{content:"";position:absolute;left:0;top:.45em;width:14px;height:14px;border-radius:50%;background:var(--accent);opacity:.8}
+.problem li:before{background:#ff6b6b}
+.cta-row{display:flex;gap:10px;flex-wrap:wrap}
+.progress{display:none}
+.has3d .progress{display:flex;position:absolute;right:18px;top:50%;transform:translateY(-50%);flex-direction:column;gap:8px;z-index:5}
+.progress i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3);display:block}
+.progress i.on{background:var(--wa);transform:scale(1.4)}
+.hint{display:none}
+.has3d .hint{display:block;position:absolute;bottom:18px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase}
+
+@media (max-width:760px){
+  .has3d .panel{left:4vw;right:4vw;width:auto;top:auto;bottom:3vh;transform:translateY(20px);background:rgba(8,12,24,.82);backdrop-filter:blur(10px);padding:18px 18px 14px;border-radius:18px;border:1px solid rgba(255,255,255,.08)}
+  .has3d .panel.show{transform:none}
+  .panel p{font-size:15px}
+  h1{font-size:30px} h2{font-size:24px}
+  .panel li{font-size:14px;margin:.3em 0}
+  .has3d .progress{right:8px;top:30%}
+  .has3d .hint{display:none}
+}
+
+/* Regular sections */
+section.block{padding:72px 6vw;max-width:1100px;margin:0 auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.card{background:#111830;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:22px}
+.card h3{margin:.2em 0}
+.price{font-size:22px;font-weight:800;margin:.4em 0}
+.card p{color:var(--muted);margin:.3em 0}
+.todo{display:inline-block;background:#3a2f00;color:#ffd54a;font-size:12px;padding:2px 8px;border-radius:6px}
+form{display:grid;gap:10px;max-width:520px}
+input,select{padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:#0f162b;color:var(--ink);font-size:16px}
+footer{padding:40px 6vw;color:var(--muted);font-size:14px;border-top:1px solid rgba(255,255,255,.08)}
+.wa-float{position:fixed;right:16px;bottom:16px;z-index:30;width:56px;height:56px;border-radius:50%;background:var(--wa);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,.4);text-decoration:none;color:#04210f;font-weight:900;font-size:13px}
+@media (max-width:760px){.has3d .wa-float{bottom:auto;top:70px;width:46px;height:46px}}
+</style>
+</head>
+<body>
+<div class="draft">Draft demo. Brand, logo and phone screens are placeholders. Example businesses are not real.</div>
+<header class="bar">
+  <div class="logo">PLATINUM<small>Marketing Agency · logo placeholder</small></div>
+  <a class="btn" href="#contact">Free AI Check</a>
+</header>
+
+<section class="journey" id="journey">
+  <div class="pin">
+    <canvas id="stage3d" aria-hidden="true"></canvas>
+    <div class="progress" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="hint">Scroll</div>
+
+    <div class="panel" data-from="0" data-to="0.1">
+      <div class="kicker">Websites · WhatsApp · AI visibility</div>
+      <h1>Your Business Deserves More Customers</h1>
+      <p>We build websites, automate your WhatsApp, and make sure AI recommends you, so customers find you first.</p>
+      <div class="cta-row"><a class="btn" href="#contact">Get a Free AI Visibility Check</a><a class="btn ghost" href="#services">See Our Services</a></div>
+    </div>
+
+    <div class="panel problem" data-from="0.135" data-to="0.25">
+      <div class="kicker">The problem</div>
+      <h2>Your Competitors Are Getting the Customers You're Missing</h2>
+      <ul>
+        <li>Customers can't find you online</li>
+        <li>You're missing calls and enquiries</li>
+        <li>AI doesn't know you exist</li>
+      </ul>
+    </div>
+
+    <div class="panel" data-from="0.285" data-to="0.4">
+      <div class="kicker">AI visibility (GEO)</div>
+      <h2>Get recommended by AI</h2>
+      <p>When customers ask ChatGPT, Google AI or Siri "Who's the best dentist in Westlands?", we make sure your business is the answer.</p>
+    </div>
+
+    <div class="panel" data-from="0.435" data-to="0.55">
+      <div class="kicker">Websites</div>
+      <h2>A website that actually brings you customers</h2>
+      <p>Fast, mobile-friendly and built to show up on Google and AI search. Not a digital business card, but a lead-generating machine.</p>
+    </div>
+
+    <div class="panel" data-from="0.585" data-to="0.73">
+      <div class="kicker">WhatsApp automations</div>
+      <h2>Never miss a customer again</h2>
+      <ul>
+        <li>Missed call? They get a WhatsApp in 30 seconds</li>
+        <li>Appointment reminders that cut no-shows</li>
+        <li>Review requests after every job</li>
+        <li>Invoice reminders with an M-Pesa payment link</li>
+      </ul>
+    </div>
+
+    <div class="panel" data-from="0.765" data-to="0.86">
+      <div class="kicker">How it works</div>
+      <h2>Three simple steps</h2>
+      <ul>
+        <li><b>We audit your business.</b> Free AI visibility check.</li>
+        <li><b>We build your systems.</b> Website, automations, AI visibility.</li>
+        <li><b>You get more customers.</b> You focus on your work.</li>
+      </ul>
+    </div>
+
+    <div class="panel" data-from="0.895" data-to="1.01">
+      <div class="kicker">Ready?</div>
+      <h2>Ready to Get More Customers?</h2>
+      <p>Book a free 10-minute AI Visibility Check. We'll show you exactly how your business shows up on AI, and what you're missing.</p>
+      <a class="btn" href="#contact">Book Your Free Check</a>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="services">
+  <div class="kicker">Services</div>
+  <h2>Pick what your business needs</h2>
+  <div class="cards">
+    <div class="card"><h3>Websites</h3><div class="price">from KSh 80,000</div><p>+ from KSh 5,000/month care plan</p><p>Mobile-ready, Google Maps, contact form, SEO.</p></div>
+    <div class="card"><h3>WhatsApp Automations</h3><div class="price">from KSh 30,000 setup</div><p>+ from KSh 15,000/month</p><p>Missed-call WhatsApp-back, instant lead replies, review collection.</p></div>
+    <div class="card"><h3>AI Visibility</h3><div class="price">from KSh 25,000 setup</div><p>+ from KSh 10,000/month</p><p>AI audit, Google Business Profile, directory listings, monthly report.</p></div>
+  </div>
+  <p style="color:var(--muted);font-size:14px;margin-top:14px">Prices from Victor's brief (1 Nov 2026). WhatsApp tool costs are extra. <span class="todo">To come: updated tool-cost figure</span></p>
+</section>
+
+<section class="block" id="proof">
+  <div class="kicker">What our clients say</div>
+  <h2>Results from real clients</h2>
+  <p class="todo">To come: real testimonials and numbers. Nothing is invented here.</p>
+</section>
+
+<section class="block" id="contact">
+  <div class="kicker">Contact</div>
+  <h2>Let's Talk About Your Business</h2>
+  <p style="color:var(--muted)">Book a free 10-minute AI Visibility Check. No charge, no commitment.</p>
+  <form onsubmit="event.preventDefault();alert('Demo only, the form is not connected yet.')">
+    <input placeholder="Your name" aria-label="Your name">
+    <input placeholder="Business name" aria-label="Business name">
+    <input placeholder="Phone" inputmode="tel" aria-label="Phone">
+    <select aria-label="What do you need help with?"><option>What do you need help with?</option><option>Website</option><option>WhatsApp Automations</option><option>AI Visibility</option><option>All of the above</option><option>Not sure</option></select>
+    <button class="btn" type="submit" style="border:0;cursor:pointer">Book Your Free Check</button>
+  </form>
+  <p style="color:var(--muted);font-size:14px">Nairobi, Kenya · <span class="todo">To come: Kenya phone, WhatsApp number, email, booking link</span></p>
+</section>
+
+<footer>© Platinum Marketing Agency · Draft for Victor and Spartan to review</footer>
+<a class="wa-float" href="#contact" aria-label="Chat on WhatsApp (number to come)">WA</a>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  var root=document.documentElement;
+  if(!root.classList.contains('has3d')||!window.THREE){root.classList.remove('has3d');return;}
+  var section=document.getElementById('journey'), canvas=document.getElementById('stage3d');
+  var renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
+  renderer.outputEncoding=THREE.sRGBEncoding;
+  var scene=new THREE.Scene();
+  var camera=new THREE.PerspectiveCamera(40,1,0.1,100);
+  camera.position.set(0,0,11);
+  scene.add(new THREE.HemisphereLight(0xffffff,0x223344,0.8));
+  var key=new THREE.DirectionalLight(0xffffff,1.0); key.position.set(4,6,8); scene.add(key);
+  var rimL=new THREE.DirectionalLight(0x7cc4ff,0.8); rimL.position.set(-6,-2,-4); scene.add(rimL);
+
+  // ---------- Phone ----------
+  var W=2.1,H=4.3,R=0.34,D=0.16;
+  function rr(w,h,r){var s=new THREE.Shape(),x=-w/2,y=-h/2;s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.quadraticCurveTo(x+w,y,x+w,y+r);s.lineTo(x+w,y+h-r);s.quadraticCurveTo(x+w,y+h,x+w-r,y+h);s.lineTo(x+r,y+h);s.quadraticCurveTo(x,y+h,x,y+h-r);s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);return s;}
+  var bodyGeo=new THREE.ExtrudeGeometry(rr(W,H,R),{depth:D,bevelEnabled:true,bevelThickness:0.05,bevelSize:0.05,bevelSegments:4,curveSegments:16});
+  bodyGeo.translate(0,0,-D/2);
+  var body=new THREE.Mesh(bodyGeo,new THREE.MeshStandardMaterial({color:0xb9bec7,metalness:0.85,roughness:0.28}));
+  var glass=new THREE.Mesh(new THREE.ShapeGeometry(rr(W-0.02,H-0.02,R-0.01),16),new THREE.MeshBasicMaterial({color:0x05070c}));
+  glass.position.z=D/2+0.051;
+  // screen canvas
+  var SC=document.createElement('canvas'); SC.width=540; SC.height=1120;
+  var g=SC.getContext('2d');
+  var screenTex=new THREE.CanvasTexture(SC); screenTex.encoding=THREE.sRGBEncoding; screenTex.anisotropy=4;
+  var sw=W-0.16, sh=H-0.16;
+  var screenGeo=new THREE.ShapeGeometry(rr(sw,sh,R-0.08),16);
+  // map UVs from shape coordinates
+  var uv=screenGeo.attributes.uv, pos=screenGeo.attributes.position;
+  for(var i=0;i<uv.count;i++){uv.setXY(i,(pos.getX(i)+sw/2)/sw,(pos.getY(i)+sh/2)/sh);}
+  var screen=new THREE.Mesh(screenGeo,new THREE.MeshBasicMaterial({map:screenTex}));
+  screen.position.z=D/2+0.056;
+  var phone=new THREE.Group(); phone.add(body); phone.add(glass); phone.add(screen); scene.add(phone);
+
+  // ---------- Customers (particles) ----------
+  var N=140, pg=new THREE.BufferGeometry(), pp=new Float32Array(N*3), seeds=[];
+  for(var k=0;k<N;k++){seeds.push({a:Math.random()*Math.PI*2,y:(Math.random()-0.5)*6,r:3+Math.random()*3.5,s:0.2+Math.random()*0.5});}
+  pg.setAttribute('position',new THREE.BufferAttribute(pp,3));
+  var pmat=new THREE.PointsMaterial({color:0x25D366,size:0.09,transparent:true,opacity:0.8,depthWrite:false});
+  var dots=new THREE.Points(pg,pmat); scene.add(dots);
+
+  // ---------- Screen drawing ----------
+  var SW=SC.width, SH=SC.height;
+  function rect(x,y,w,h,r,fill){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();g.fillStyle=fill;g.fill();}
+  function wrap(txt,x,y,maxW,lh){var words=txt.split(' '),line='',yy=y;for(var i=0;i<words.length;i++){var t=line+words[i]+' ';if(g.measureText(t).width>maxW&&line){g.fillText(line.trim(),x,yy);line=words[i]+' ';yy+=lh;}else line=t;}g.fillText(line.trim(),x,yy);return yy+lh;}
+  function font(px,w){g.font=(w||500)+' '+px+'px system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif';}
+  function status(dark){g.fillStyle=dark?'#fff':'#111';font(22,600);g.fillText('9:41',36,52);g.textAlign='right';g.fillText('4G  ▮▮▮',SW-36,52);g.textAlign='left';rect(SW/2-70,24,140,34,17,'#000');}
+  function bubble(txt,side,y,bg,fg,appear){if(appear<=0)return y;g.globalAlpha=Math.min(1,appear);font(26,500);var maxW=360,lines=[],words=txt.split(' '),line='';for(var i=0;i<words.length;i++){var t=line+words[i]+' ';if(g.measureText(t).width>maxW&&line){lines.push(line.trim());line=words[i]+' ';}else line=t;}lines.push(line.trim());var w=0;lines.forEach(function(l){w=Math.max(w,g.measureText(l).width);});w+=40;var h=lines.length*34+26;var x=side==='r'?SW-30-w:30;var dy=(1-Math.min(1,appear))*20;rect(x,y+dy,w,h,20,bg);g.fillStyle=fg;lines.forEach(function(l,i){g.fillText(l,x+20,y+dy+40+i*34);});g.globalAlpha=1;return y+h+18;}
+  function A(t,start,len){return Math.max(0,Math.min(1,(t-start)/(len||0.08)));}
+
+  var draws=[
+    function hero(t){var gr=g.createLinearGradient(0,0,0,SH);gr.addColorStop(0,'#141c3a');gr.addColorStop(1,'#060912');g.fillStyle=gr;g.fillRect(0,0,SW,SH);status(true);
+      g.fillStyle='#d9dde3';font(30,800);g.fillText('PLATINUM',60,250);font(18,500);g.fillStyle='#8a93a8';g.fillText('logo placeholder',60,280);
+      g.fillStyle='#fff';font(64,800);g.fillText('More',60,470);g.fillText('customers.',60,545);g.fillStyle='#7cc4ff';g.fillText('Less stress.',60,640);g.fillStyle='#25D366';g.fillText('Automated.',60,735);
+      rect(60,880,SW-120,90,45,'#25D366');g.fillStyle='#04210f';font(30,700);g.textAlign='center';g.fillText('Free AI Visibility Check',SW/2,937);g.textAlign='left';},
+    function problem(t){g.fillStyle='#14080b';g.fillRect(0,0,SW,SH);status(true);
+      g.fillStyle='#ff8a8a';font(24,700);g.fillText('WHAT YOUR CUSTOMER SEES',40,140);
+      var y=180;
+      g.globalAlpha=A(t,0.05);rect(30,y,SW-60,190,22,'#24161a');g.fillStyle='#fff';font(26,600);g.fillText('Search: "dentist in Westlands"',56,y+56);g.fillStyle='#ff8a8a';font(24,500);wrap('No website for your clinic. Your competitor shows up first.',56,y+104,SW-120,32);g.globalAlpha=1;
+      y+=220;g.globalAlpha=A(t,0.3);rect(30,y,SW-60,190,22,'#24161a');g.fillStyle='#ff6b6b';font(30,800);g.fillText('3 missed calls',56,y+60);g.fillStyle='#ddd';font(24,500);wrap('Nobody replied. They called someone else.',56,y+108,SW-120,32);g.globalAlpha=1;
+      y+=220;g.globalAlpha=A(t,0.55);rect(30,y,SW-60,240,22,'#24161a');g.fillStyle='#fff';font(26,600);g.fillText('AI chat',56,y+52);g.fillStyle='#aab';font(24,500);wrap('"Best dentist in Westlands?"',56,y+96,SW-120,32);g.fillStyle='#ff8a8a';wrap('AI: "Try Other Clinic, open now."',56,y+150,SW-120,32);g.globalAlpha=1;},
+    function ai(t){g.fillStyle='#f4f6fb';g.fillRect(0,0,SW,SH);status(false);
+      g.fillStyle='#111';font(28,700);g.fillText('AI Assistant',40,130);g.fillStyle='#888';font(20,500);g.fillText('example screen',40,158);
+      var y=210;y=bubble('Who is the best dentist in Westlands?','r',y,'#2b6cff','#fff',A(t,0.02,0.1));
+      if(t>0.2&&t<0.38){g.fillStyle='#bbb';font(40,800);g.fillText('• • •',50,y+30);}
+      if(t>=0.38){var a=A(t,0.38,0.12);g.globalAlpha=a;rect(30,y,SW-60,330,24,'#ffffff');g.strokeStyle='#25D366';g.lineWidth=4;g.stroke();
+        g.fillStyle='#25D366';font(20,800);g.fillText('TOP PICK',56,y+46);g.fillStyle='#111';font(34,800);g.fillText('Your Clinic',56,y+96);g.fillStyle='#f5a623';font(28,700);g.fillText('★★★★★  4.9',56,y+142);
+        g.fillStyle='#444';font(23,500);wrap('Highly reviewed, open now, books on WhatsApp.',56,y+188,SW-120,32);rect(56,y+250,200,56,28,'#25D366');g.fillStyle='#04210f';font(22,700);g.fillText('WhatsApp',96,y+286);g.globalAlpha=1;}},
+    function web(t){g.fillStyle='#fff';g.fillRect(0,0,SW,SH);status(false);
+      rect(24,76,SW-48,52,26,'#eef1f6');g.fillStyle='#555';font(22,500);g.fillText('yourclinic.co.ke',60,110);
+      var load=A(t,0.0,0.25);rect(24,140,(SW-48)*load,6,3,'#25D366');
+      var a=A(t,0.15,0.15);g.globalAlpha=a;var gr=g.createLinearGradient(0,170,0,560);gr.addColorStop(0,'#1d3b8f');gr.addColorStop(1,'#4fa3ff');rect(24,170,SW-48,390,24,gr);
+      g.fillStyle='#fff';font(44,800);g.fillText('Your Clinic',56,300);font(24,500);wrap('Gentle family dentistry in Westlands. Open 7 days.',56,350,SW-130,32);
+      rect(56,450,210,64,32,'#25D366');g.fillStyle='#04210f';font(22,700);g.fillText('WhatsApp us',84,490);rect(282,450,170,64,32,'#fff');g.fillStyle='#1d3b8f';g.fillText('Book',335,490);
+      g.globalAlpha=A(t,0.35,0.15);var y=600;['Services & prices','Google Map + directions','Reviews ★ 4.9','Book online'].forEach(function(s,i){rect(24,y+i*96,SW-48,80,18,'#f2f5fa');g.fillStyle='#222';font(26,600);g.fillText(s,56,y+i*96+50);});g.globalAlpha=1;},
+    function wa(t){g.fillStyle='#e9e2d8';g.fillRect(0,0,SW,SH);g.fillStyle='#075E54';g.fillRect(0,0,SW,170);status(true);
+      g.fillStyle='#fff';font(30,700);g.fillText('Your Clinic',110,130);font(20,500);g.fillStyle='#cfe';g.fillText('example chat',110,156);g.beginPath();g.arc(66,122,30,0,7);g.fillStyle='#25D366';g.fill();
+      var y=200;
+      g.globalAlpha=A(t,0.0);rect(SW/2-150,y,300,48,24,'#fde7e7');g.fillStyle='#c0392b';font(22,700);g.textAlign='center';g.fillText('Missed call · 10:02',SW/2,y+32);g.textAlign='left';g.globalAlpha=1;y+=70;
+      y=bubble('Hi! Sorry we missed your call. How can we help?','l',y,'#fff','#111',A(t,0.1));
+      y=bubble('Can I book a cleaning on Saturday?','r',y,'#dcf8c6','#111',A(t,0.25));
+      y=bubble('Done! Saturday 10am is booked. We will remind you 2 hours before.','l',y,'#fff','#111',A(t,0.4));
+      y=bubble('Thanks for visiting! Could you leave us a quick Google review? ★','l',y,'#fff','#111',A(t,0.58));
+      var a=A(t,0.74);if(a>0){g.globalAlpha=a;rect(30,y,SW-60,150,20,'#fff');g.fillStyle='#2e7d32';font(24,800);g.fillText('M-PESA',56,y+46);g.fillStyle='#111';font(26,600);g.fillText('Pay KSh 2,500 (example)',56,y+88);rect(56,y+102,180,36,18,'#25D366');g.fillStyle='#04210f';font(20,700);g.fillText('Pay now',96,y+127);g.globalAlpha=1;}},
+    function how(t){g.fillStyle='#10132a';g.fillRect(0,0,SW,SH);status(true);g.fillStyle='#fff';font(36,800);g.fillText('Your plan',50,170);
+      [['We audit your business','Free AI visibility check'],['We build your systems','Website, WhatsApp, AI'],['You get more customers','Leads answered for you']].forEach(function(s,i){var a=A(t,0.08+i*0.22,0.12),y=240+i*230;g.globalAlpha=0.35+0.65*a;rect(36,y,SW-72,190,24,'#1b2045');g.beginPath();g.arc(100,y+95,36,0,7);g.fillStyle=a>=1?'#25D366':'#3a4170';g.fill();g.fillStyle='#04210f';font(36,900);g.textAlign='center';g.fillText(a>=1?'✓':String(i+1),100,y+108);g.textAlign='left';g.fillStyle='#fff';font(27,700);g.fillText(s[0],160,y+84);g.fillStyle='#a9b1c1';font(22,500);g.fillText(s[1],160,y+122);g.globalAlpha=1;});},
+    function cta(t){g.fillStyle='#e9e2d8';g.fillRect(0,0,SW,SH);g.fillStyle='#075E54';g.fillRect(0,0,SW,170);status(true);g.fillStyle='#fff';font(30,700);g.fillText('Platinum',110,130);font(20,500);g.fillStyle='#cfe';g.fillText('number to come',110,156);g.beginPath();g.arc(66,122,30,0,7);g.fillStyle='#d9dde3';g.fill();
+      var y=230;y=bubble('Hi Platinum, I would like my free AI Visibility Check.','r',y,'#dcf8c6','#111',A(t,0.05));
+      y=bubble('Karibu! Send us your business name and area, and we will show you how AI sees you.','l',y,'#fff','#111',A(t,0.3));
+      g.globalAlpha=A(t,0.5);rect(40,SH-220,SW-80,100,50,'#25D366');g.fillStyle='#04210f';font(32,800);g.textAlign='center';g.fillText('Book Your Free Check',SW/2,SH-158);g.textAlign='left';g.globalAlpha=1;}
+  ];
+
+  // ---------- Pop-out cards (3D elements that burst out of the screen) ----------
+  function makeCard(wu,hu,drawFn){
+    var c=document.createElement('canvas'); c.width=Math.round(wu*200); c.height=Math.round(hu*200);
+    var old=g; g=c.getContext('2d'); drawFn(c.width,c.height); g=old;
+    var t=new THREE.CanvasTexture(c); t.encoding=THREE.sRGBEncoding; t.anisotropy=4;
+    var m=new THREE.Mesh(new THREE.PlaneGeometry(wu,hu),new THREE.MeshBasicMaterial({map:t,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false}));
+    m.visible=false; scene.add(m); return m;
+  }
+  function pill(bg,fg,lines,opts){opts=opts||{};return function(w,h){rect(4,4,w-8,h-8,opts.r||Math.min(40,h/2-4),bg);if(opts.border){g.strokeStyle=opts.border;g.lineWidth=6;g.stroke();}
+    var y=opts.top||0;lines.forEach(function(l){font(l[1],l[2]||600);g.fillStyle=l[3]||fg;g.textAlign=opts.center?'center':'left';y+=l[1]*1.25;g.fillText(l[0],opts.center?w/2:34,(opts.top?0:(h-lines.length*l[1]*1.25)/2)+y-l[1]*0.2);});g.textAlign='left';};}
+  // each pop: mesh, target offset from phone [x,y,z], start delay, style
+  var POPS=[[],[],[],[],[],[],[]];
+  function add(stage,wu,hu,fn,tx,ty,tz,delay,kind){POPS[stage].push({m:makeCard(wu,hu,fn),t:[tx,ty,tz],d:delay,kind:kind||'float',seed:Math.random()*6});}
+  // Problem: red cards fly out, then fall away
+  add(1,2.4,0.8,pill('#2a1216','#fff',[['Missed call',40,800,'#ff6b6b'],['Nobody answered',26,500,'#ddd']],{border:'#ff6b6b'}),-1.9,1.3,1.2,0.05,'fall');
+  add(1,2.6,0.8,pill('#2a1216','#fff',[['No website found',36,800,'#ff8a8a'],['Customer gave up',26,500,'#ddd']],{border:'#ff6b6b'}),1.9,0.5,1.0,0.2,'fall');
+  add(1,2.6,0.8,pill('#2a1216','#fff',[['AI: "Try Other Clinic"',32,800,'#ff8a8a'],['Your competitor wins',26,500,'#ddd']],{border:'#ff6b6b'}),-1.6,-1.2,1.4,0.35,'fall');
+  // AI: question bubble + big Top Pick card that flies at you
+  add(2,2.8,0.75,pill('#2b6cff','#fff',[['"Best dentist in Westlands?"',32,700]]),-2.0,1.5,0.9,0.05);
+  add(2,2.6,1.6,function(w,h){rect(4,4,w-8,h-8,36,'#fff');g.strokeStyle='#25D366';g.lineWidth=10;g.stroke();font(34,900);g.fillStyle='#25D366';g.fillText('TOP PICK',40,70);font(64,900);g.fillStyle='#111';g.fillText('Your Clinic',40,150);font(44,800);g.fillStyle='#f5a623';g.fillText('★★★★★ 4.9',40,215);font(28,600);g.fillStyle='#555';g.fillText('Open now · books on WhatsApp',40,275);},-1.3,-0.4,2.6,0.25,'hero');
+  // Website: exploded layers
+  add(3,2.4,1.1,function(w,h){var gr=g.createLinearGradient(0,0,w,h);gr.addColorStop(0,'#1d3b8f');gr.addColorStop(1,'#4fa3ff');rect(4,4,w-8,h-8,30,gr);font(56,900);g.fillStyle='#fff';g.fillText('Your Clinic',36,90);font(28,500);g.fillText('Westlands · Open 7 days',36,140);},-2.1,1.4,1.0,0.05);
+  add(3,1.7,0.6,pill('#25D366','#04210f',[['WhatsApp us',40,800]],{center:true}),2.0,1.3,1.4,0.15);
+  add(3,2.0,0.8,pill('#ffffff','#111',[['Map + directions',34,700],['Find us in 1 tap',24,500,'#666']]),2.2,-0.4,0.9,0.25);
+  add(3,2.0,0.8,pill('#ffffff','#111',[['★★★★★ Reviews',34,800,'#f5a623'],['Shown on your site',24,500,'#666']]),-2.2,-0.6,1.3,0.35);
+  add(3,1.7,0.6,pill('#1d3b8f','#fff',[['Book online',38,800]],{center:true}),0.2,-2.3,1.6,0.45);
+  // WhatsApp: messages orbit out
+  add(4,2.2,0.6,pill('#fde7e7','#c0392b',[['Missed call · 10:02',34,800]],{center:true}),-2.0,1.8,0.8,0.0);
+  add(4,2.8,0.8,pill('#ffffff','#111',[['Hi! Sorry we missed',30,600],['your call. How can we help?',30,600]]),2.1,1.2,1.2,0.12);
+  add(4,2.6,0.8,pill('#dcf8c6','#111',[['✓ Booked: Sat 10am',34,800],['Reminder 2 hrs before',26,500,'#355']]),-2.2,0.2,1.5,0.26);
+  add(4,2.4,0.7,pill('#ffffff','#f5a623',[['★★★★★  New review',34,800]]),2.2,-0.8,1.0,0.4);
+  add(4,2.3,0.8,pill('#ffffff','#111',[['M-PESA',30,900,'#2e7d32'],['Pay KSh 2,500 (example)',26,600]]),-1.6,-1.8,1.3,0.54);
+  // How it works: three tiles
+  add(5,2.0,0.8,pill('#1b2045','#fff',[['1  We audit',38,800],['Free AI check',24,500,'#a9b1c1']],{border:'#7cc4ff'}),-2.3,1.3,1.0,0.05);
+  add(5,2.0,0.8,pill('#1b2045','#fff',[['2  We build',38,800],['Site · WhatsApp · AI',24,500,'#a9b1c1']],{border:'#7cc4ff'}),2.3,0.2,1.2,0.25);
+  add(5,2.0,0.8,pill('#1b2045','#fff',[['3  You grow',38,800,'#25D366'],['More customers',24,500,'#a9b1c1']],{border:'#25D366'}),-2.0,-1.3,1.4,0.45);
+  // CTA: big button flies forward
+  add(6,2.8,0.7,pill('#25D366','#04210f',[['Book Your Free Check',40,900]],{center:true}),0,-2.5,2.2,0.3,'hero');
+
+  // stage timing
+  var S=[0,0.12,0.27,0.42,0.57,0.75,0.88,1.0];
+  var BG=['#0a0f1e','#1a0b10','#0b1430','#0c1626','#06201a','#0e1028','#06201a'];
+  var TILT=[[-0.35,0.08],[0.3,-0.05],[-0.3,0.06],[0.3,-0.04],[-0.25,0.05],[0.25,0.02],[0,0]];
+  var FLIPW=0.03; // half-width of the 360° flip around each stage boundary
+  var lastKey='', target=0, cur=0, prev=0, vel=0, visible=true, lw=0, lh=0, t0=null;
+  var c1=new THREE.Color(), c2=new THREE.Color(), tmp=new THREE.Vector3();
+  var panels=section.querySelectorAll('.panel'), pdots=section.querySelectorAll('.progress i');
+  function ease(x){x=Math.max(0,Math.min(1,x));return x*x*(3-2*x);}
+  function easeOut(x){x=Math.max(0,Math.min(1,x));return 1-Math.pow(1-x,3);}
+  function stageOf(p){for(var i=0;i<7;i++){if(p<S[i+1]||i===6)return [i,(p-S[i])/(S[i+1]-S[i])];}}
+  function resize(){var w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+  function read(){var r=section.getBoundingClientRect(),span=section.offsetHeight-innerHeight;target=Math.max(0,Math.min(1,-r.top/span));visible=r.bottom>0&&r.top<innerHeight;}
+  addEventListener('scroll',read,{passive:true});addEventListener('resize',read);
+
+  function frame(time){
+    requestAnimationFrame(frame);
+    if(!visible)return;
+    if(t0===null)t0=time;
+    if(canvas.clientWidth!==lw||canvas.clientHeight!==lh){lw=canvas.clientWidth;lh=canvas.clientHeight;resize();}
+    cur+=(target-cur)*0.08; vel+=((cur-prev)*60-vel)*0.1; prev=cur;
+    var p=cur, T=time*0.001, mobile=camera.aspect<0.9;
+    var st=stageOf(p), si=st[0], lt=Math.max(0,Math.min(1,st[1]));
+    // 360° flip around each boundary; the screen swaps while its back faces you
+    var flip=0, shown=si;
+    for(var k=1;k<7;k++){var d=p-S[k];if(Math.abs(d)<FLIPW){var f=ease((d+FLIPW)/(2*FLIPW));flip=f*Math.PI*2;shown=f<0.5?k-1:k;}}
+    var sst=stageOf(Math.min(p, shown<si?S[si]-0.0001:p)); var showLt=shown===si?lt:1;
+    var key=shown+':'+Math.round(showLt*40);
+    if(key!==lastKey){lastKey=key;g.save();g.clearRect(0,0,SW,SH);draws[shown](showLt);g.restore();screenTex.needsUpdate=true;}
+    // phone pose
+    var intro=easeOut((time-t0)/1400); // fly-in on load
+    var tl=TILT[si];
+    var shake= si===1 ? Math.sin(T*40)*0.03*Math.sin(Math.PI*Math.min(1,lt*1.4)) : 0;
+    var dive = si===6 ? ease((lt-0.15)/0.6) : 0;
+    phone.rotation.set(tl[1]+Math.sin(T*0.8)*0.04, tl[0]+flip+Math.sin(T*0.5)*0.08+(1-intro)*Math.PI*2, shake+Math.max(-0.2,Math.min(0.2,vel*0.8)));
+    var px= mobile?0:2.3*(1-dive*0.6), py=(mobile?1.5:0)+Math.sin(T)*0.08-(1-intro)*6;
+    phone.position.set(px,py,0);
+    phone.scale.setScalar((mobile?0.74:1.08)*(1+0.12*Math.sin(Math.PI*flip/(Math.PI*2))));
+    camera.position.set(0,0,(mobile?11.5:10.5)-dive*(mobile?2.5:3)); camera.lookAt(px*dive*0.7,py*dive*0.5,0);
+    // background
+    var nx=Math.min(6,si+1), bb=ease((lt-0.7)/0.3); c1.set(BG[si]); c2.set(BG[nx]); c1.lerp(c2,bb); scene.background=c1;
+    // pop-out cards
+    var ms=mobile?0.55:1;
+    for(var s2=0;s2<7;s2++){POPS[s2].forEach(function(o,idx){
+      var m=o.m; if(s2!==si||(mobile&&s2===6)){m.visible=false;return;}
+      var aIn=easeOut((lt-0.06-o.d*0.6)/0.22), aOut=ease((lt-0.8)/0.14);
+      var a=aIn*(1-aOut); m.visible=a>0.01; if(!m.visible)return;
+      tmp.set(phone.position.x,phone.position.y,0.3);
+      var tx=phone.position.x+o.t[0]*ms*(mobile?1.05:1), ty=phone.position.y+o.t[1]*ms+(mobile?-0.2:0), tz=o.t[2]*(mobile?0.9:1);
+      if(mobile){tx=Math.max(-1.9,Math.min(1.9,tx));}
+      var bob=Math.sin(T*1.3+o.seed)*0.08;
+      var x=tmp.x+(tx-tmp.x)*aIn, y=tmp.y+(ty-tmp.y)*aIn+bob, z=tmp.z+(tz-tmp.z)*aIn;
+      if(o.kind==='fall'){y-=aOut*aOut*5; z+=aOut*1; m.rotation.z=aOut*(o.seed>3?1:-1)*1.2;} else {z+=aOut*-1.5; m.rotation.z=Math.sin(T*0.7+o.seed)*0.05;}
+      if(o.kind==='hero'){ z+=Math.sin(T*1.1)*0.15; }
+      m.position.set(x,y,z);
+      m.rotation.y=(1-aIn)*Math.PI*0.9 + Math.sin(T*0.6+o.seed)*0.12;
+      m.rotation.x=(1-aIn)*0.4;
+      m.scale.setScalar(ms*(0.3+0.7*aIn)*(o.kind==='hero'?1.1:1));
+      m.material.opacity=a;
+    });}
+    // customers: blown away by the problem, then gathering round the phone
+    var gather = si===1 ? -0.6*ease(lt*1.5) : (si===0?0: Math.min(1,(si-1)/5 + lt/5));
+    pmat.color.set(si===1?0xff6b6b:0x25D366); pmat.opacity=si===1?0.55:0.9; pmat.size=mobile?0.07:0.1;
+    var cx=phone.position.x, cy=phone.position.y;
+    for(var q=0;q<N;q++){var sd=seeds[q],ang=sd.a+T*sd.s*(si===1?1.2:0.35),r=sd.r*(1-0.55*gather)+(si===1?3*ease(lt):0),yy=sd.y*(1-0.4*gather);
+      pp[q*3]=cx+Math.cos(ang)*r; pp[q*3+1]=cy*0.5+yy; pp[q*3+2]=Math.sin(ang)*r-1.5;}
+    pg.attributes.position.needsUpdate=true;
+    renderer.render(scene,camera);
+    panels.forEach(function(el){el.classList.toggle('show',p>=+el.dataset.from&&p<=+el.dataset.to);});
+    pdots.forEach(function(d,i){d.classList.toggle('on',i===si);});
+  }
+  resize();read();requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

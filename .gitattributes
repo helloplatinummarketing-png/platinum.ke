@@ -1,0 +1,5 @@
+# Store text files with Unix line endings (LF) in Git, whatever the computer.
+* text=auto eol=lf
+*.png binary
+*.webp binary
+*.ico binary

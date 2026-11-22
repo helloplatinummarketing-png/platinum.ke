@@ -1,0 +1,40 @@
+/*
+ * THEME: every colour and font for the whole site lives here.
+ *
+ * PLACEHOLDER BRAND: Platinum's final colours, fonts and logo are not decided.
+ * To rebrand, change the values below. Nothing else needs editing.
+ * (Tailwind classes such as bg-bg, text-muted, bg-wa read from these.)
+ *
+ * The phone screens in the 3D story have their own palette in
+ * components/story/screens/palette.ts (they imitate apps like WhatsApp).
+ */
+:root {
+  /* Page */
+  --bg: #0a0f1e;          /* dark navy background (placeholder) */
+  --surface: #111830;     /* cards */
+  --surface-2: #0f162b;   /* inputs, inner panels */
+  --line: rgb(255 255 255 / 0.1);
+  --ink: #f3f5f8;         /* main text */
+  --muted: #a9b1c1;       /* secondary text */
+
+  /* Brand (placeholders) */
+  --platinum: #d9dde3;    /* silver, phone + logo tile */
+  --accent: #7cc4ff;      /* light blue accent */
+
+  /* Actions */
+  --wa: #25d366;          /* WhatsApp green: main buttons */
+  --wa-ink: #04210f;      /* text on green buttons */
+
+  /* Feedback */
+  --danger: #ff6b6b;
+  --todo-bg: #3a2f00;     /* "To come" labels */
+  --todo-ink: #ffd54a;
+
+  /* Type: system fonts only (no download). Swap in one web font later if wanted. */
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-heading: var(--font-body);
+
+  /* Shape */
+  --radius: 18px;
+  --radius-pill: 999px;
+}
