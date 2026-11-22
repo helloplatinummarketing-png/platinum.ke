@@ -6,6 +6,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { TrackClicks } from "@/components/TrackClicks";
 import { WhatsAppFloat } from "@/components/WhatsAppFloat";
 import { seo, site } from "@/content/site";
+import { layerScript } from "@/lib/layer-script";
 import { organizationSchema } from "@/lib/schema";
 import "./globals.css";
 
@@ -27,7 +28,12 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en-KE">
+    // suppressHydrationWarning: the layer script adds classes to <html> before React starts
+    <html lang="en-KE" suppressHydrationWarning>
+      <head>
+        {/* Picks the home-page story layer before anything is drawn (lib/layer-script.ts) */}
+        <script dangerouslySetInnerHTML={{ __html: layerScript }} />
+      </head>
       <body className="flex min-h-dvh flex-col bg-bg text-ink antialiased">
         {/* Business details for Google and AI tools, on every page */}
         <JsonLd data={organizationSchema()} />

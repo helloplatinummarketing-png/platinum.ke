@@ -21,7 +21,23 @@ export default defineConfig({
     timeout: 60_000,
   },
   projects: [
-    { name: "no-js 320px", use: { javaScriptEnabled: false, viewport: { width: 320, height: 720 } } },
-    { name: "no-js 1280px", use: { javaScriptEnabled: false, viewport: { width: 1280, height: 800 } } },
+    // Layer 1 and everything that must work with JavaScript off
+    {
+      name: "no-js 320px",
+      testIgnore: /layer2|layer3/,
+      use: { javaScriptEnabled: false, viewport: { width: 320, height: 720 } },
+    },
+    {
+      name: "no-js 1280px",
+      testIgnore: /layer2|layer3/,
+      use: { javaScriptEnabled: false, viewport: { width: 1280, height: 800 } },
+    },
+    // Layers 2 and 3 (JavaScript on)
+    {
+      name: "js 360px",
+      testMatch: /layer2|layer3/,
+      use: { viewport: { width: 360, height: 740 }, isMobile: true, hasTouch: true },
+    },
+    { name: "js 1280px", testMatch: /layer2|layer3/, use: { viewport: { width: 1280, height: 800 } } },
   ],
 });

@@ -62,6 +62,142 @@ h3 {
   }
 }
 
+/* ------------------------------------------------------------------ */
+/* HOME PHONE STORY LAYERS (see components/story/StoryStops.tsx)       */
+/* Layer 1 = default. html.story-flat = Layer 2.                       */
+/* ------------------------------------------------------------------ */
+.story-phone-slot {
+  display: none;
+}
+.story-flat .story-phone-slot {
+  display: block;
+}
+.story-flat .stop-picture {
+  display: none;
+}
+
+/* Phones: the flat phone sticks under the header; stops scroll beneath it */
+.story-flat .story-grid {
+  display: flex;
+  flex-direction: column;
+}
+.story-flat .story-phone-slot {
+  order: -1;
+  position: sticky;
+  top: 64px;
+  z-index: 10;
+  padding: 10px 0 22px;
+  /* Reserve the phone's space before it appears, so text doesn't jump */
+  min-height: calc(min(38svh, 300px) + 32px);
+  background: linear-gradient(var(--bg) 80%, transparent);
+}
+.story-flat .story-stop {
+  min-height: 62svh;
+  display: flex;
+  align-items: center;
+}
+
+/* Desktop: text on the left, phone fixed in view on the right */
+@media (min-width: 768px) {
+  .story-flat .story-grid {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 4rem;
+  }
+  .story-flat .story-phone-slot {
+    order: 0;
+    position: static;
+    padding: 0;
+    min-height: 0;
+    background: none;
+  }
+  .story-flat .flat-phone {
+    position: sticky;
+    top: calc(50vh - 260px);
+    padding-top: 32px;
+  }
+  .story-flat .story-stop {
+    min-height: 86vh;
+  }
+}
+
+.flat-phone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  perspective: 1000px;
+  animation: flat-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.flat-frame {
+  position: relative;
+  height: min(38svh, 300px);
+  aspect-ratio: 405 / 840;
+  border: 6px solid color-mix(in srgb, var(--platinum) 85%, transparent);
+  border-radius: 1.8rem;
+  background: #000;
+  box-shadow: 0 18px 50px rgb(0 0 0 / 0.55);
+  overflow: hidden;
+  transform-style: preserve-3d;
+}
+@media (min-width: 768px) {
+  .flat-frame {
+    height: auto;
+    width: 260px;
+    border-width: 7px;
+    border-radius: 2.4rem;
+  }
+}
+.flat-screen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: translateY(14px) scale(0.98);
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s ease;
+}
+.flat-screen.is-active {
+  opacity: 1;
+  transform: none;
+}
+.flat-dots {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.flat-dots li {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.3);
+  transition: transform 0.3s, background 0.3s;
+}
+.flat-dots li.on {
+  background: var(--wa);
+  transform: scale(1.45);
+}
+@keyframes flat-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) rotateY(-25deg);
+  }
+}
+
+/* Reduced motion: fade between screens only (no slide, tilt or entrance) */
+@media (prefers-reduced-motion: reduce) {
+  .flat-phone {
+    animation: none !important;
+  }
+  .story-flat .flat-screen {
+    transform: none !important;
+    transition: opacity 0.35s ease !important;
+  }
+}
+
 /* Reusable pieces (kept small; most styling is Tailwind classes) */
 @layer components {
   .container-page {
