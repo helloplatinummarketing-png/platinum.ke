@@ -510,7 +510,8 @@ html.story-flat #story:not([data-ch="0"]):not([data-ch="1"]) .story-tower {
   opacity: 1;
   transform: none;
 }
-html.can-3d .story-tower {
+/* the 3D tower replaces the still one once it's running */
+html.story-3d-on .story-tower {
   display: none;
 }
 @media (max-width: 759px) {
@@ -771,7 +772,8 @@ html.story-flat .ch-a.show {
 }
 
 /* ---- Layer 3 loader: "Switching on the city lights…" ---- */
-html.can-3d .story-loader {
+/* Shown only while the 3D starts (on the first scroll/touch), at most 2.5 s */
+html.can-3d .story-loader.show {
   display: flex;
   position: fixed;
   inset: 0;

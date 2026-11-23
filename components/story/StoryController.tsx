@@ -228,6 +228,8 @@ export function StoryController({ chapters, bgPhotos, aiQuestion, aiTopPick, tow
         });
         root.classList.add("story-3d-on");
         canvas.addEventListener("webglcontextlost", fallBack, { once: true });
+        // Leave Layer 2's photo classes to the 3D loop from now on
+        bgs.forEach((el) => el.classList.remove("on"));
       } catch {
         fallBack();
       }
@@ -254,19 +256,47 @@ export function StoryController({ chapters, bgPhotos, aiQuestion, aiTopPick, tow
       });
     }
 
-    if (root.classList.contains("can-3d")) {
+    /*
+     * Start the 3D on the visitor's first scroll, touch, mouse move or key
+     * press (or 6 seconds after the page has loaded). Until then the story
+     * runs as Layer 2 (photos, bullets, still tower), so the first view is
+     * fast. The "city lights" loader shows only while the 3D starts.
+     */
+    const START_EVENTS = ["scroll", "wheel", "touchstart", "pointerdown", "pointermove", "keydown"] as const;
+    let started = false;
+    let idleTimer: ReturnType<typeof setTimeout> | undefined;
+    const trigger = () => {
+      if (started) return;
+      started = true;
+      START_EVENTS.forEach((e) => window.removeEventListener(e, trigger));
+      if (idleTimer) clearTimeout(idleTimer);
+      loader?.classList.add("show");
       startLoader();
-      // Start as soon as the page has loaded (the loader covers the wait)
-      const go = () => void start3d();
-      if (document.readyState === "complete") go();
-      else window.addEventListener("load", go, { once: true });
       // Never keep the loader up for long, even on a slow connection
-      setTimeout(() => loader?.classList.add("done"), 4000);
+      setTimeout(() => loader?.classList.add("done"), 2500);
+      void start3d();
+    };
+    const onLoad = () => {
+      idleTimer = setTimeout(trigger, 6000);
+    };
+    if (root.classList.contains("can-3d")) {
+      START_EVENTS.forEach((e) => window.addEventListener(e, trigger, { passive: true }));
+      if (document.readyState === "complete") onLoad();
+      else window.addEventListener("load", onLoad, { once: true });
+      // For testing: ?layer=3 starts as soon as the page has loaded
+      if (/[?&]layer=3/.test(location.search)) {
+        if (document.readyState === "complete") trigger();
+        else window.addEventListener("load", trigger, { once: true });
+      }
     }
 
     return () => {
       cancelled = true;
       io.disconnect();
+      START_EVENTS.forEach((e) => window.removeEventListener(e, trigger));
+      window.removeEventListener("load", onLoad);
+      window.removeEventListener("load", trigger);
+      if (idleTimer) clearTimeout(idleTimer);
       if (timer) clearInterval(timer);
       handle?.dispose();
       root.classList.remove("story-3d-on");

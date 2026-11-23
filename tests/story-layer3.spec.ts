@@ -88,6 +88,30 @@ test.describe("Layer 3: the full photo story", () => {
     await expect(page.locator(".story-city")).toHaveAttribute("data-running", "true");
   });
 
+  test("before the first scroll: no loader, no three.js, still tower; first scroll starts the 3D", async ({ page }) => {
+    let threeLoaded = false;
+    page.on("response", async (r) => {
+      if (r.request().resourceType() === "script" && r.url().includes("/_next/")) {
+        if (/webgl2/.test(await r.text().catch(() => ""))) threeLoaded = true;
+      }
+    });
+    await page.goto("/");
+    const cls = (await page.locator("html").getAttribute("class")) ?? "";
+    test.skip(!cls.includes("can-3d"), "this browser has no graphics chip, so it gets Layer 2");
+    await page.waitForLoadState("load");
+    await page.waitForTimeout(1500);
+    await expect(page.locator(".story-loader")).toBeHidden();
+    await expect(page.locator("h1")).toBeVisible();
+    expect(threeLoaded, "three.js before any interaction").toBe(false);
+    // the story already works (Layer 2): scrolling lights the problem bullets
+    await scrollToP(page, stepPoint(1, 1));
+    await expect(page.locator("#ch-problem .ch-step[data-step='1']")).toHaveClass(/\bon\b/);
+    // that scroll was the first interaction: the 3D starts
+    await expect(page.locator("html")).toHaveClass(/story-3d-on/, { timeout: 20_000 });
+    await expect.poll(() => threeLoaded).toBe(true);
+    await expect(page.locator(".story-tower")).toBeHidden();
+  });
+
   test("the active bullet and its visual change at the same scroll point", async ({ page }, info) => {
     test.setTimeout(180_000);
     await page.goto("/?layer=3");

@@ -241,7 +241,7 @@ export function PhotoStory() {
         {photoNotes.illustration}. {photoNotes.examples}
       </p>
 
-      {/* Layer 3 only: "Switching on the city lights…" while the 3D starts */}
+      {/* Layer 3 only: "Switching on the city lights…" while the 3D starts (on first scroll/touch) */}
       <div className="story-loader story-stage-only" aria-hidden="true">
         <b>0%</b>
         <span>{photoNotes.loader}</span>
