@@ -7,7 +7,7 @@ export function PhotoCredit({ photo, className = "" }: { photo: PhotoKey; classN
   return (
     <span className={className}>
       {photoNotes.creditPrefix}{" "}
-      <a href={p.sourceUrl} rel="noopener" target="_blank" className="underline-offset-2 hover:underline">
+      <a href={p.sourceUrl} rel="noopener" target="_blank" className="underline underline-offset-2">
         {p.photographer} {photoNotes.creditSuffix}
       </a>
     </span>
