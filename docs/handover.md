@@ -1,7 +1,7 @@
 # Platinum Kenya website: handover and final summary
 
 **Date:** 23 November 2026 · **Built by:** Austin, with Claude Code · **Status:** built and tested locally, **not deployed**
-**Code:** `C:\Dev\platinum-ke` (Git, 18 commits) · **Review files:** `C:\Dev\platinum-review\`
+**Code:** `C:\Dev\platinum-ke` (Git, one commit per build step) · **Review files:** `C:\Dev\platinum-review\`
 
 ---
 
