@@ -1,21 +1,21 @@
 "use client";
 
 /**
- * The 3D phone sits in the phone column beside the text (above it on phones).
- * Its cards fly towards the bullet points they illustrate, which light up.
+ * LAYER 3: the pinned phone story.
  *
- * Loads the 3D phone story (Layer 3) only when:
- *  - the layer script marked this device as capable (html.can-3d), and
- *  - the visitor first scrolls, touches, moves the mouse or presses a key,
- *    or 6 seconds after the page has loaded, whichever comes first.
- * Until then a still picture of the phone (the "poster") is shown, so the
- * hero never looks empty and early taps on buttons are never slowed down.
+ * Scrolling steps through "cards": each stop's intro, then each of its
+ * bullets (the [data-step] elements in StoryStops). The active card is pinned
+ * beside a MARKER on the phone's screen (components/story/screens/anchors.ts),
+ * joined to it by a line, with a counter at the top ("02 · The problem 2 / 4").
  *
- * three.js is in a separate file (./three/scene) downloaded only then, and
- * only on the home page. If anything fails, the flat phone (Layer 2) returns.
+ * Card switching works from the first moment (cheap). The 3D phone itself
+ * (three.js, ./three/scene) loads on the visitor's first scroll, touch, mouse
+ * move or key press, or 6 seconds after the page has loaded; a still phone
+ * shows until then. If 3D fails, the flat phone (Layer 2) returns.
  */
 import { useEffect, useRef } from "react";
-import type { Story3DStop } from "./three/scene";
+import { anchorFor } from "./screens/anchors";
+import type { Marker, Story3DStop, StoryStep } from "./three/scene";
 
 type PosterImg = { src: string; srcSet?: string; sizes?: string; width: number; height: number };
 
@@ -32,11 +32,122 @@ export function Story3D({
   poster: PosterImg;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const lineRef = useRef<SVGLineElement>(null);
+  const dotRef = useRef<SVGCircleElement>(null);
+  const counterRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
     const root = document.documentElement;
     if (!root.classList.contains("can-3d")) return;
+    const story = document.getElementById("story");
+    const stage = story?.querySelector<HTMLElement>(".story-grid");
+    const canvas = canvasRef.current;
+    if (!story || !stage || !canvas) return;
 
+    /* ---------- Steps (cards) ---------- */
+    const cards = Array.from(story.querySelectorAll<HTMLElement>(".story-card[data-step]")).sort(
+      (a, b) => Number(a.dataset.step) - Number(b.dataset.step),
+    );
+    const steps: StoryStep[] = cards.map((c) => ({
+      stop: Number(c.dataset.stop),
+      bullet: Number(c.dataset.bullet),
+      anchor: anchorFor(c.dataset.stopId ?? "", Number(c.dataset.bullet)),
+    }));
+
+    /** Scroll position -> step number with fraction (0 .. steps.length) */
+    const readStep = () => {
+      const r = story.getBoundingClientRect();
+      const span = Math.max(1, r.height - stage.offsetHeight);
+      const p = Math.max(0, Math.min(1, -r.top / span));
+      return Math.min(steps.length - 0.0001, p * steps.length);
+    };
+
+    /* ---------- Card layout ---------- */
+    let active = -1;
+    let marker: Marker | null = null;
+    const setActive = (n: number) => {
+      if (n === active) return;
+      cards[active]?.classList.remove("is-active");
+      cards[n]?.classList.add("is-active");
+      active = n;
+      if (counterRef.current) counterRef.current.textContent = cards[n]?.dataset.counter ?? "";
+    };
+
+    const layout = () => {
+      const s = readStep();
+      // Hide the card while the phone flips between chapters
+      const n = Math.floor(s);
+      const flipping = marker !== null && !marker.visible;
+      setActive(flipping ? -1 : n);
+      const card = cards[n];
+      if (!card || flipping) {
+        lineRef.current?.setAttribute("opacity", "0");
+        dotRef.current?.setAttribute("opacity", "0");
+        return;
+      }
+      const W = stage.clientWidth;
+      const H = stage.clientHeight;
+      const w = card.offsetWidth;
+      const h = card.offsetHeight;
+      const mobile = window.innerWidth < 768;
+      // Before the 3D phone is ready: the still phone's spot (see .story-3d-poster in globals.css)
+      const m: Marker = marker ?? {
+        x: mobile ? W / 2 : W * 0.22 + 130,
+        y: mobile ? H * 0.25 : H * 0.5,
+        visible: true,
+        box: mobile
+          ? { left: W / 2 - 75, right: W / 2 + 75, top: H * 0.06, bottom: H * 0.06 + Math.min(H * 0.4, 300) }
+          : { left: W * 0.22, right: W * 0.22 + 260, top: H / 2 - 270, bottom: H / 2 + 270 },
+      };
+      let x: number;
+      let y: number;
+      let lx: number;
+      let ly: number;
+      if (mobile) {
+        // Under the phone, above the floating WhatsApp button
+        x = 16;
+        y = Math.min(m.box.bottom + 14, H - h - 84);
+        y = Math.max(8, y);
+        lx = Math.min(Math.max(m.x, x + 28), x + w - 28);
+        ly = y;
+      } else {
+        // Just right of the phone (left if there's no room), level with the marker
+        x = Math.max(m.box.right + 48, m.x + 48);
+        if (x + w > W - 24) x = Math.max(24, m.box.left - 48 - w);
+        y = Math.min(Math.max(m.y - h / 2, 16), H - h - 16);
+        lx = x > m.x ? x : x + w;
+        ly = Math.min(Math.max(m.y, y + 24), y + h - 24);
+      }
+      card.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+      const line = lineRef.current;
+      const dot = dotRef.current;
+      if (line && dot) {
+        const show = marker ? "1" : "0";
+        line.setAttribute("x1", String(m.x));
+        line.setAttribute("y1", String(m.y));
+        line.setAttribute("x2", String(lx));
+        line.setAttribute("y2", String(ly));
+        dot.setAttribute("cx", String(m.x));
+        dot.setAttribute("cy", String(m.y));
+        line.setAttribute("opacity", show);
+        dot.setAttribute("opacity", show);
+      }
+    };
+
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking || root.classList.contains("story-3d-on")) return; // the 3D loop does it when running
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        layout();
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    layout();
+
+    /* ---------- Start the 3D phone ---------- */
     let cancelled = false;
     let started = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -44,6 +155,10 @@ export function Story3D({
 
     const fallBack = () => {
       root.classList.remove("can-3d", "story-3d-on");
+      cards.forEach((c) => {
+        c.classList.remove("is-active");
+        c.style.transform = "";
+      });
       window.dispatchEvent(new Event("story3d-failed"));
     };
 
@@ -53,26 +168,18 @@ export function Story3D({
       removeTriggers();
       try {
         const { startStory3D } = await import("./three/scene");
-        const canvas = canvasRef.current;
-        if (cancelled || !canvas) return;
-        const stops = Array.from(document.querySelectorAll<HTMLElement>("[data-stop]"));
-        const story = document.getElementById("story");
+        if (cancelled) return;
         handle = startStory3D({
           canvas,
-          stops,
+          story,
+          steps,
+          readStep,
           screens,
           exampleLabel,
-          // Light up the bullet(s) the cards are pointing at (-1 = the whole stop)
-          onLit: (stop, bullets) => {
-            document.querySelectorAll(".is-lit").forEach((el) => el.classList.remove("is-lit"));
-            if (stop < 0) return;
-            for (const b of bullets) {
-              const el = b < 0 ? stops[stop] : stops[stop].querySelector(`[data-bullet="${b}"]`);
-              el?.classList.add("is-lit");
-            }
+          onFrame: (mk) => {
+            marker = mk;
+            layout();
           },
-          // The stop's colour glows behind the phone
-          onTint: (color) => story?.style.setProperty("--story-tint", color),
         });
         root.classList.add("story-3d-on");
         canvas.addEventListener("webglcontextlost", fallBack, { once: true });
@@ -103,6 +210,8 @@ export function Story3D({
     return () => {
       cancelled = true;
       removeTriggers();
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
       handle?.dispose();
       root.classList.remove("story-3d-on");
     };
@@ -119,6 +228,12 @@ export function Story3D({
         </div>
       </div>
       <canvas ref={canvasRef} />
+      {/* Line joining the phone's marker to the active card */}
+      <svg className="story-leader" width="100%" height="100%">
+        <line ref={lineRef} stroke="currentColor" strokeWidth="2" strokeDasharray="5 5" opacity="0" />
+        <circle ref={dotRef} r="6" fill="none" stroke="currentColor" strokeWidth="2" opacity="0" />
+      </svg>
+      <p ref={counterRef} className="story-counter" />
     </div>
   );
 }

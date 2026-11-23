@@ -31,12 +31,12 @@ export function FlatPhone({ screens }: { screens: FlatScreen[] }) {
     window.addEventListener("story3d-failed", onFail);
     // Wait one frame before switching on, so React isn't updating during the first render
     if (!root.classList.contains("can-3d")) requestAnimationFrame(() => setOn(true));
-    const stops = Array.from(document.querySelectorAll<HTMLElement>("[data-stop]"));
+    const stops = Array.from(document.querySelectorAll<HTMLElement>("[data-stop-section]"));
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
           if (!e.isIntersecting) continue;
-          const i = Number((e.target as HTMLElement).dataset.stop);
+          const i = Number((e.target as HTMLElement).dataset.stopSection);
           setActive(i);
           setMounted((m) => Math.max(m, i + 2));
         }

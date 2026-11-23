@@ -7,8 +7,9 @@
  *   `npm run screens`).
  * LAYER 2 (html.story-flat): the per-stop pictures hide; one flat phone
  *   (FlatPhone) stays in view and swaps screens as you scroll.
- * LAYER 3 (html.can-3d): the same column holds a 3D phone (Story3D) instead.
- *   Its cards fly towards the bullet they illustrate, and that bullet lights up.
+ * LAYER 3 (html.can-3d): the story is pinned. Each stop's intro and each of
+ *   its bullets becomes a "card" (data-step) pinned to a marker on the 3D
+ *   phone's screen; scrolling steps through them (Story3D).
  */
 import Image, { getImageProps } from "next/image";
 import { site, story } from "@/content/site";
@@ -55,8 +56,17 @@ export function StoryStops() {
   // Text for the 3D phone's screens and pop-out cards (Layer 3)
   const screens3d = story.map((s) => ({ id: s.id, screen: s.screen, popCards: s.popCards }));
 
+  // Number every card: each stop's intro, then each of its bullets (Layer 3 steps)
+  let step = 0;
+  const steps = story.map((s) => {
+    const intro = step++;
+    const bullets = (s.bullets ?? []).map(() => step++);
+    return { intro, bullets };
+  });
+  const totalSteps = step;
+
   return (
-    <div id="story" className="story border-b border-line">
+    <div id="story" className="story border-b border-line" style={{ "--story-steps": totalSteps } as React.CSSProperties}>
       <div className="story-grid container-page">
         <div className="story-stops">
           {story.map((stop, i) => {
@@ -64,31 +74,51 @@ export function StoryStops() {
             const headingId = `stop-${stop.id}-title`;
             const numbered = stop.id === "how";
             const isProblem = stop.id === "problem";
+            const chapter = String(i + 1).padStart(2, "0");
+            const count = 1 + (stop.bullets?.length ?? 0);
+            const cardData = (n: number, bullet: number) => ({
+              "data-step": n,
+              "data-stop": i,
+              "data-stop-id": stop.id,
+              "data-bullet": bullet,
+              "data-counter": `${chapter} · ${stop.kicker}${count > 1 ? `  ${bullet + 2} / ${count}` : ""}`,
+            });
             return (
               <section
                 key={stop.id}
                 id={`stop-${stop.id}`}
-                data-stop={i}
+                data-stop-section={i}
                 aria-labelledby={headingId}
                 className="story-stop border-b border-line last:border-b-0"
               >
-                <div className="grid w-full items-center gap-10 py-14 sm:py-20 md:grid-cols-[1fr_auto] md:gap-16">
-                  <div className="max-w-xl">
-                    <p className="kicker">{stop.kicker}</p>
-                    <Heading
-                      id={headingId}
-                      className={`mt-3 font-extrabold ${
-                        i === 0 ? "text-4xl sm:text-5xl lg:text-6xl" : "text-3xl sm:text-4xl"
-                      }`}
-                    >
-                      {stop.heading}
-                    </Heading>
-                    {stop.body && <p className="mt-4 text-lg text-muted">{stop.body}</p>}
+                <div className="stop-inner grid w-full items-center gap-10 py-14 sm:py-20 md:grid-cols-[1fr_auto] md:gap-16">
+                  <div className="stop-copy max-w-xl">
+                    {/* Intro card: kicker, heading, text, buttons */}
+                    <div className={`story-card stop-intro${i === 0 ? " is-active" : ""}`} {...cardData(steps[i].intro, -1)}>
+                      <p className="kicker">{stop.kicker}</p>
+                      <Heading
+                        id={headingId}
+                        className={`mt-3 font-extrabold ${
+                          i === 0 ? "text-4xl sm:text-5xl lg:text-6xl" : "text-3xl sm:text-4xl"
+                        }`}
+                      >
+                        {stop.heading}
+                      </Heading>
+                      {stop.body && <p className="mt-4 text-lg text-muted">{stop.body}</p>}
+                      {stop.ctas && (
+                        <div className="mt-8 flex flex-wrap gap-3">
+                          {stop.ctas.map((c, n) => (
+                            <CtaButton key={c.href} link={c} variant={n === 0 ? "primary" : "ghost"} />
+                          ))}
+                        </div>
+                      )}
+                    </div>
 
+                    {/* One card per bullet */}
                     {stop.bullets && (
-                      <ul className="mt-6 space-y-4">
+                      <ul role="list" className="story-bullets mt-6 space-y-4">
                         {stop.bullets.map((b, n) => (
-                          <li key={b.text} data-bullet={n} className="story-bullet flex gap-3">
+                          <li key={b.text} className="story-card story-bullet flex gap-3" {...cardData(steps[i].bullets[n], n)}>
                             {numbered ? (
                               <span className="grid size-8 shrink-0 place-items-center rounded-full bg-accent/15 font-extrabold text-accent">
                                 {n + 1}
@@ -103,20 +133,16 @@ export function StoryStops() {
                               </span>
                             )}
                             <p>
+                              {/* Shown only on the 3D cards: which chapter this bullet belongs to */}
+                              <span className="card-kicker kicker" aria-hidden="true">
+                                {stop.kicker}
+                              </span>
                               {b.title && <strong className="block">{b.title}</strong>}
                               <span className={b.title ? "text-muted" : ""}>{b.text}</span>
                             </p>
                           </li>
                         ))}
                       </ul>
-                    )}
-
-                    {stop.ctas && (
-                      <div className="mt-8 flex flex-wrap gap-3">
-                        {stop.ctas.map((c, n) => (
-                          <CtaButton key={c.href} link={c} variant={n === 0 ? "primary" : "ghost"} />
-                        ))}
-                      </div>
                     )}
                   </div>
 

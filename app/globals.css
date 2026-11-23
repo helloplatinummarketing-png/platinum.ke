@@ -198,43 +198,175 @@ h3 {
   }
 }
 
-/* ---------------- LAYER 3: 3D phone (html.can-3d) ---------------- */
-/* Same layout as Layer 2: text on the left, phone column on the right     */
-/* (phone above the text on phones). The 3D phone lives in that column.    */
-.story-3d-stage {
+/* ---------------- LAYER 3: pinned 3D phone story (html.can-3d) ---------------- */
+/* The story is pinned to the screen while you scroll through it. Each card     */
+/* (a stop's intro, or one bullet) is pinned beside a marker on the phone.      */
+.story-3d-stage,
+.card-kicker,
+.story-counter {
   display: none;
+}
+.can-3d #story {
+  position: relative;
+  /* scroll length: ~70% of a screen per card, plus one screen for the pinned view */
+  height: calc(var(--story-steps) * 70vh + 100vh);
+  height: calc(var(--story-steps) * 70svh + 100svh);
+  border-bottom: 0;
+  background: radial-gradient(
+    55% 60% at 30% 50%,
+    color-mix(in srgb, var(--story-tint, transparent) 34%, transparent),
+    transparent 75%
+  );
+  background-attachment: fixed;
+}
+.can-3d .story-grid {
+  position: sticky;
+  top: 64px;
+  height: calc(100vh - 64px);
+  height: calc(100svh - 64px);
+  display: block;
+  max-width: none;
+  padding: 0;
+  overflow: hidden;
+}
+.can-3d .story-phone-slot {
+  position: absolute;
+  inset: 0;
+  z-index: 1; /* below the cards (the flat-phone rule sets 10) */
+  display: block;
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  background: none;
 }
 .can-3d .story-3d-stage {
   display: block;
-  position: relative;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
+  color: #ff7a4d; /* marker + line colour */
 }
 .can-3d .stop-picture {
   display: none;
 }
-/* Phones: the column sticks under the header, a little taller than the flat phone */
-.can-3d .story-phone-slot {
-  min-height: 0;
-  height: min(46svh, 380px);
-  padding: 0;
+
+/* The text: sections dissolve so each card can be placed on its own */
+.can-3d .story-stops {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
 }
-/* Desktop: a wider phone column; the 3D stage stays in view while the text scrolls */
-@media (min-width: 768px) {
-  .can-3d .story-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(360px, 46%);
-    gap: 2rem;
-  }
-  .can-3d .story-phone-slot {
-    height: auto;
-  }
-  .can-3d .story-3d-stage {
-    position: sticky;
-    top: 64px;
-    height: calc(100vh - 64px);
-    height: calc(100svh - 64px);
+.can-3d .story-stop,
+.can-3d .stop-inner,
+.can-3d .stop-copy,
+.can-3d .story-bullets {
+  display: contents;
+}
+.can-3d .story-card {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: min(400px, calc(100% - 32px));
+  margin: 0;
+  padding: 20px 22px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgb(12 18 36 / 0.84);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 60px rgb(0 0 0 / 0.45);
+  opacity: 0;
+  visibility: hidden;
+  scale: 0.97;
+  transition:
+    opacity 0.35s ease,
+    scale 0.35s ease,
+    visibility 0s linear 0.35s;
+  pointer-events: auto;
+  will-change: transform;
+  /* Where the first card sits before the page's JavaScript places it */
+  transform: translate(calc(50vw + 2rem), 18vh);
+}
+@media (max-width: 767px) {
+  .can-3d .story-card {
+    transform: translate(16px, 46svh);
   }
 }
+.can-3d .story-card.is-active {
+  opacity: 1;
+  visibility: visible;
+  scale: 1;
+  transition:
+    opacity 0.35s ease,
+    scale 0.35s ease,
+    visibility 0s;
+}
+.can-3d .story-bullet .card-kicker {
+  display: block;
+  margin-bottom: 6px;
+}
+.can-3d .story-card h1 {
+  font-size: clamp(1.9rem, 3.4vw, 3rem);
+}
+.can-3d .story-card h2 {
+  font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+}
+.can-3d .story-card .mt-8 {
+  margin-top: 1.25rem;
+}
+@media (max-width: 767px) {
+  .can-3d .story-card {
+    padding: 16px 18px;
+  }
+  .can-3d .story-card h1 {
+    font-size: 1.7rem;
+  }
+  .can-3d .story-card h2 {
+    font-size: 1.35rem;
+  }
+  .can-3d .story-card p {
+    font-size: 0.95rem;
+  }
+}
+
+/* Line from the marker to the card, and the chapter counter */
+.story-leader {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 1;
+}
+.story-leader line,
+.story-leader circle {
+  transition: opacity 0.25s ease;
+}
+.can-3d .story-counter {
+  display: block;
+  position: absolute;
+  top: 18px;
+  right: 24px;
+  z-index: 3;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: pre;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgb(10 15 30 / 0.85);
+  border: 1px solid var(--line);
+}
+@media (max-width: 767px) {
+  .can-3d .story-counter {
+    top: 10px;
+    right: 16px;
+    font-size: 0.62rem;
+  }
+}
+
+/* Canvas fades in over the still phone once the 3D is ready */
 .story-3d-stage canvas {
   position: absolute;
   inset: 0;
@@ -247,86 +379,25 @@ h3 {
 .story-3d-on .story-3d-stage canvas {
   opacity: 1;
 }
-/* Still phone shown until the 3D phone takes over */
 .story-3d-poster {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding-left: 22%;
   pointer-events: none;
   transition: opacity 0.5s ease;
 }
 .story-3d-on .story-3d-poster {
   opacity: 0;
 }
-
-/* The stop's colour glows softly behind the phone (set by the 3D scene) */
-.can-3d #story {
-  background: radial-gradient(
-    55% 45% at 72% 50%,
-    color-mix(in srgb, var(--story-tint, transparent) 38%, transparent),
-    transparent 75%
-  );
-  background-attachment: fixed;
-}
 @media (max-width: 767px) {
-  .can-3d #story {
-    background: radial-gradient(
-      90% 30% at 50% 22%,
-      color-mix(in srgb, var(--story-tint, transparent) 38%, transparent),
-      transparent 75%
-    );
-    background-attachment: fixed;
+  .story-3d-poster {
+    align-items: flex-start;
+    justify-content: center;
+    padding: 6% 0 0;
   }
-}
-
-/* Bullets light up when the card that illustrates them arrives */
-.story-bullet {
-  border-radius: 14px;
-  margin-inline: -10px;
-  padding: 8px 10px;
-  transition:
-    background-color 0.35s ease,
-    box-shadow 0.35s ease,
-    transform 0.35s ease;
-}
-.story-bullet.is-lit {
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-  box-shadow: inset 3px 0 0 var(--accent);
-  transform: translateX(6px);
-}
-#stop-problem .story-bullet.is-lit {
-  background: color-mix(in srgb, var(--danger) 12%, transparent);
-  box-shadow: inset 3px 0 0 var(--danger);
-}
-#stop-whatsapp .story-bullet.is-lit,
-#stop-how .story-bullet.is-lit {
-  background: color-mix(in srgb, var(--wa) 12%, transparent);
-  box-shadow: inset 3px 0 0 var(--wa);
-}
-/* Stops without bullets (AI, Website): a bar lights up beside the text block */
-.story-stop > div > div:first-child {
-  position: relative;
-}
-.story-stop > div > div:first-child::before {
-  content: "";
-  position: absolute;
-  left: -12px;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  border-radius: 3px;
-  background: var(--accent);
-  opacity: 0;
-  transform: scaleY(0.4);
-  transition:
-    opacity 0.4s ease,
-    transform 0.4s ease;
-}
-.story-stop.is-lit > div > div:first-child::before {
-  opacity: 1;
-  transform: none;
 }
 
 /* Reusable pieces (kept small; most styling is Tailwind classes) */

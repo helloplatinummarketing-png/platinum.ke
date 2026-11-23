@@ -1,25 +1,29 @@
 /**
  * LAYER 3: the 3D phone story (ported from docs/demo/index.html).
  *
- * The phone lives in its own column BESIDE the text (on phones: above it),
- * on a transparent canvas, so it's part of the page rather than a backdrop.
- * Cards fly out of the phone towards the bullet point they illustrate, and
- * that bullet lights up (onLit). The stop's colour becomes a glow behind the
- * phone (onTint).
+ * The story is pinned and steps through cards (Story3D.tsx). For each step
+ * the phone turns and zooms towards a MARKER on its screen; the page card is
+ * pinned beside that marker. Between chapters (stops) the phone does a full
+ * 360° flip and the screen swaps while its back faces the viewer.
  *
- * Loaded only on the home page, only on capable devices, on the visitor's
- * first interaction (components/story/Story3D.tsx). Nothing heavy: the phone
- * is built in code and every screen and card is drawn on a canvas, with text
- * from content/site.ts.
+ * Every frame this reports the marker's position on screen (onFrame), so the
+ * card and its connecting line follow the phone.
+ *
+ * Also from the demo, kept quieter so the cards stay the focus: pop-out 3D
+ * cards at the start of each chapter (on the far side of the phone), customer
+ * dots that scatter at the problem and gather afterwards, and a camera dive at
+ * the end. The stop colour glows behind the phone.
  *
  * Rules: pauses when off-screen or the tab is hidden; small screens (<400px)
- * get at most 3 cards per stop and a lower pixel ratio; reduced motion turns
+ * get at most 3 pop-out cards and a lower pixel ratio; reduced motion turns
  * off flips, flying cards and camera moves.
  */
 import {
+  AdditiveBlending,
   BufferAttribute,
   BufferGeometry,
   CanvasTexture,
+  CircleGeometry,
   Color,
   DirectionalLight,
   DoubleSide,
@@ -33,6 +37,7 @@ import {
   PlaneGeometry,
   Points,
   PointsMaterial,
+  RingGeometry,
   Scene,
   Shape,
   ShapeGeometry,
@@ -43,36 +48,46 @@ import {
 import { drawScreen, SCREEN_H, SCREEN_W, type ScreenStop } from "../screens/draw";
 
 export type Story3DStop = ScreenStop & { popCards: { title: string; sub?: string; bullet?: number }[] };
+/** One scroll step: which stop, which bullet (-1 = the stop's intro), and its marker on the screen. */
+export type StoryStep = { stop: number; bullet: number; anchor: [number, number] };
+/** Marker position on the canvas (px) and the phone's outline on screen (px). */
+export type Marker = {
+  x: number;
+  y: number;
+  visible: boolean;
+  box: { left: number; right: number; top: number; bottom: number };
+};
 
 export type Story3DOptions = {
   canvas: HTMLCanvasElement;
-  /** The text sections, in order (elements with data-stop). */
-  stops: HTMLElement[];
-  /** Same order as `stops`: screen text and pop-card text from content/site.ts. */
+  /** The #story element (used to pause when it's off-screen, and for the glow colour). */
+  story: HTMLElement;
+  steps: StoryStep[];
+  /** Current step with fraction, from the scroll position (0 .. steps.length). */
+  readStep: () => number;
+  /** Same order as the stops: screen text and pop-card text from content/site.ts. */
   screens: Story3DStop[];
   exampleLabel: string;
-  /** Called when the lit-up bullets change: stop index, bullet indexes (-1 = the whole stop). */
-  onLit?: (stop: number, bullets: number[]) => void;
-  /** Called every frame with the current glow colour (CSS colour string). */
-  onTint?: (color: string) => void;
+  /** Every frame: where the marker is on the canvas (px), whether it faces the viewer, and the phone's outline. */
+  onFrame?: (marker: Marker) => void;
 };
 
 /* ----------------------------- look & feel ----------------------------- */
 
 /** Glow colour per stop (placeholder palette, from the demo's backgrounds, brightened). */
 const TINT = ["#1d3b8f", "#7a1f2b", "#2b4fbf", "#1d5a8f", "#0f7a4f", "#3a3f9f", "#0f7a4f"];
-/** Resting tilt of the phone per stop: [y, x] radians. */
+/** Resting turn of the phone per stop: [y, x] radians. */
 const TILT: [number, number][] = [
-  [-0.35, 0.08],
-  [0.3, -0.05],
-  [-0.3, 0.06],
+  [0.32, 0.06],
   [0.3, -0.04],
-  [-0.25, 0.05],
-  [0.25, 0.02],
-  [0, 0],
+  [0.28, 0.05],
+  [0.3, -0.04],
+  [0.26, 0.05],
+  [0.3, 0.02],
+  [0.12, 0],
 ];
-/** Half-width of the 360° flip around each stop boundary, in "stops". */
-const FLIP_HALF = 0.22;
+/** Half-width of the 360° flip around each chapter boundary, in steps. */
+const FLIP_HALF = 0.3;
 
 type Kind = "float" | "fall" | "hero" | "orbit";
 type CardStyle = {
@@ -85,44 +100,44 @@ type CardStyle = {
   center?: boolean;
   size: number;
   subSize?: number;
-  /** Where the card flies to, relative to the phone: x, y, z (used when it has no bullet) */
+  /** Where the card flies to, relative to the phone: x, y, z (x is mirrored to the far side) */
   to: [number, number, number];
   delay: number;
   kind?: Kind;
   special?: "topPick";
 };
 
-/** Card styles per stop (by position). The TEXT comes from content (story[].popCards). */
+/** Pop-out card styles per stop (by position). The TEXT comes from content (story[].popCards). */
 const CARD_STYLES: Record<string, CardStyle[]> = {
   problem: [
-    { w: 2.6, h: 0.8, bg: "#2a1216", fg: "#ff8a8a", subFg: "#ddd", border: "#ff6b6b", size: 36, subSize: 26, to: [-1.9, 1.3, 1.2], delay: 0.05, kind: "fall" },
-    { w: 2.4, h: 0.8, bg: "#2a1216", fg: "#ff6b6b", subFg: "#ddd", border: "#ff6b6b", size: 40, subSize: 26, to: [1.9, 0.5, 1.0], delay: 0.2, kind: "fall" },
-    { w: 2.6, h: 0.8, bg: "#2a1216", fg: "#ff8a8a", subFg: "#ddd", border: "#ff6b6b", size: 32, subSize: 26, to: [-1.6, -1.2, 1.4], delay: 0.35, kind: "fall" },
+    { w: 2.6, h: 0.8, bg: "#2a1216", fg: "#ff8a8a", subFg: "#ddd", border: "#ff6b6b", size: 36, subSize: 26, to: [1.9, 1.4, 0.8], delay: 0.0, kind: "fall" },
+    { w: 2.4, h: 0.8, bg: "#2a1216", fg: "#ff6b6b", subFg: "#ddd", border: "#ff6b6b", size: 40, subSize: 26, to: [2.1, 0.2, 1.0], delay: 0.12, kind: "fall" },
+    { w: 2.6, h: 0.8, bg: "#2a1216", fg: "#ff8a8a", subFg: "#ddd", border: "#ff6b6b", size: 32, subSize: 26, to: [1.8, -1.1, 0.9], delay: 0.24, kind: "fall" },
   ],
   ai: [
-    { w: 2.8, h: 0.75, bg: "#2b6cff", fg: "#fff", size: 32, to: [-1.6, 1.6, 0.9], delay: 0.05 },
-    { w: 2.6, h: 1.6, bg: "#ffffff", fg: "#111", subFg: "#555", border: "#25D366", size: 64, subSize: 28, to: [-1.2, -0.5, 2.2], delay: 0.25, kind: "hero", special: "topPick" },
+    { w: 2.8, h: 0.75, bg: "#2b6cff", fg: "#fff", size: 32, to: [1.8, 1.6, 0.8], delay: 0.0 },
+    { w: 2.6, h: 1.6, bg: "#ffffff", fg: "#111", subFg: "#555", border: "#25D366", size: 64, subSize: 28, to: [1.6, -0.6, 1.4], delay: 0.15, kind: "hero", special: "topPick" },
   ],
   website: [
-    { w: 2.4, h: 1.1, bg: ["#1d3b8f", "#4fa3ff"], fg: "#fff", subFg: "#fff", size: 56, subSize: 28, to: [-1.9, 1.4, 1.0], delay: 0.05 },
-    { w: 1.7, h: 0.6, bg: "#25D366", fg: "#04210f", center: true, size: 40, to: [1.6, 1.5, 1.4], delay: 0.15 },
-    { w: 2.0, h: 0.8, bg: "#ffffff", fg: "#111", subFg: "#666", size: 34, subSize: 24, to: [1.7, -0.4, 0.9], delay: 0.25 },
-    { w: 2.0, h: 0.8, bg: "#ffffff", fg: "#f5a623", subFg: "#666", size: 34, subSize: 24, to: [-2.0, -0.6, 1.3], delay: 0.35 },
-    { w: 1.7, h: 0.6, bg: "#1d3b8f", fg: "#fff", center: true, size: 38, to: [0.2, -2.2, 1.6], delay: 0.45 },
+    { w: 2.4, h: 1.1, bg: ["#1d3b8f", "#4fa3ff"], fg: "#fff", subFg: "#fff", size: 56, subSize: 28, to: [1.9, 1.5, 0.9], delay: 0.0 },
+    { w: 1.7, h: 0.6, bg: "#25D366", fg: "#04210f", center: true, size: 40, to: [2.0, 0.4, 1.2], delay: 0.08 },
+    { w: 2.0, h: 0.8, bg: "#ffffff", fg: "#111", subFg: "#666", size: 34, subSize: 24, to: [1.9, -0.6, 0.8], delay: 0.16 },
+    { w: 2.0, h: 0.8, bg: "#ffffff", fg: "#f5a623", subFg: "#666", size: 34, subSize: 24, to: [1.6, -1.6, 1.1], delay: 0.24 },
+    { w: 1.7, h: 0.6, bg: "#1d3b8f", fg: "#fff", center: true, size: 38, to: [0.4, -2.3, 1.3], delay: 0.32 },
   ],
   whatsapp: [
-    { w: 2.2, h: 0.6, bg: "#fde7e7", fg: "#c0392b", center: true, size: 34, to: [-2.0, 1.8, 0.8], delay: 0.0, kind: "orbit" },
-    { w: 2.8, h: 0.8, bg: "#ffffff", fg: "#111", subFg: "#111", size: 30, subSize: 30, to: [1.8, 1.2, 1.2], delay: 0.12, kind: "orbit" },
-    { w: 2.6, h: 0.8, bg: "#dcf8c6", fg: "#111", subFg: "#355", size: 34, subSize: 26, to: [-2.0, 0.2, 1.5], delay: 0.26, kind: "orbit" },
-    { w: 2.4, h: 0.7, bg: "#ffffff", fg: "#f5a623", size: 34, to: [1.9, -0.8, 1.0], delay: 0.4, kind: "orbit" },
-    { w: 2.3, h: 0.8, bg: "#ffffff", fg: "#2e7d32", subFg: "#111", size: 30, subSize: 26, to: [-1.6, -1.8, 1.3], delay: 0.54, kind: "orbit" },
+    { w: 2.2, h: 0.6, bg: "#fde7e7", fg: "#c0392b", center: true, size: 34, to: [1.9, 1.7, 0.8], delay: 0.0, kind: "orbit" },
+    { w: 2.8, h: 0.8, bg: "#ffffff", fg: "#111", subFg: "#111", size: 30, subSize: 30, to: [2.0, 0.8, 1.0], delay: 0.08, kind: "orbit" },
+    { w: 2.6, h: 0.8, bg: "#dcf8c6", fg: "#111", subFg: "#355", size: 34, subSize: 26, to: [1.9, -0.2, 1.2], delay: 0.16, kind: "orbit" },
+    { w: 2.4, h: 0.7, bg: "#ffffff", fg: "#f5a623", size: 34, to: [1.8, -1.1, 0.9], delay: 0.24, kind: "orbit" },
+    { w: 2.3, h: 0.8, bg: "#ffffff", fg: "#2e7d32", subFg: "#111", size: 30, subSize: 26, to: [1.6, -2.0, 1.1], delay: 0.32, kind: "orbit" },
   ],
   how: [
-    { w: 2.0, h: 0.8, bg: "#1b2045", fg: "#fff", subFg: "#a9b1c1", border: "#7cc4ff", size: 38, subSize: 24, to: [-2.0, 1.3, 1.0], delay: 0.05 },
-    { w: 2.0, h: 0.8, bg: "#1b2045", fg: "#fff", subFg: "#a9b1c1", border: "#7cc4ff", size: 38, subSize: 24, to: [2.0, 0.2, 1.2], delay: 0.25 },
-    { w: 2.0, h: 0.8, bg: "#1b2045", fg: "#25D366", subFg: "#a9b1c1", border: "#25D366", size: 38, subSize: 24, to: [-2.0, -1.3, 1.4], delay: 0.45 },
+    { w: 2.0, h: 0.8, bg: "#1b2045", fg: "#fff", subFg: "#a9b1c1", border: "#7cc4ff", size: 38, subSize: 24, to: [1.9, 1.3, 0.9], delay: 0.0 },
+    { w: 2.0, h: 0.8, bg: "#1b2045", fg: "#fff", subFg: "#a9b1c1", border: "#7cc4ff", size: 38, subSize: 24, to: [2.1, 0.1, 1.1], delay: 0.12 },
+    { w: 2.0, h: 0.8, bg: "#1b2045", fg: "#25D366", subFg: "#a9b1c1", border: "#25D366", size: 38, subSize: 24, to: [1.9, -1.1, 1.3], delay: 0.24 },
   ],
-  cta: [{ w: 2.8, h: 0.7, bg: "#25D366", fg: "#04210f", center: true, size: 40, to: [0, -2.2, 1.8], delay: 0.3, kind: "hero" }],
+  cta: [{ w: 2.8, h: 0.7, bg: "#25D366", fg: "#04210f", center: true, size: 40, to: [0, -2.4, 1.4], delay: 0.2, kind: "hero" }],
 };
 
 /* ------------------------------- helpers ------------------------------- */
@@ -135,6 +150,7 @@ const ease = (x: number) => {
   return x * x * (3 - 2 * x);
 };
 const easeOut = (x: number) => 1 - Math.pow(1 - clamp01(x), 3);
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
 function roundedShape(w: number, h: number, r: number) {
   const s = new Shape();
@@ -228,7 +244,7 @@ function drawCard(style: CardStyle, text: { title: string; sub?: string }, extra
 /* -------------------------------- scene -------------------------------- */
 
 export function startStory3D(o: Story3DOptions): { dispose: () => void } {
-  const { canvas, stops, screens } = o;
+  const { canvas, steps, screens } = o;
   const reducedMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   const renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
@@ -285,17 +301,32 @@ export function startStory3D(o: Story3DOptions): { dispose: () => void } {
   screenTex.anisotropy = 4;
   const sw = W - 0.16;
   const sh = H - 0.16;
+  const SCREEN_Z = D / 2 + 0.056;
   const screenGeo = track(new ShapeGeometry(roundedShape(sw, sh, R - 0.08), 16));
   const uv = screenGeo.attributes.uv;
   const pos = screenGeo.attributes.position;
   for (let i = 0; i < uv.count; i++) uv.setXY(i, (pos.getX(i) + sw / 2) / sw, (pos.getY(i) + sh / 2) / sh);
   const screenMat = track(new MeshBasicMaterial({ map: screenTex, transparent: true }));
   const screenMesh = new Mesh(screenGeo, screenMat);
-  screenMesh.position.z = D / 2 + 0.056;
+  screenMesh.position.z = SCREEN_Z;
 
   const phone = new Group();
   phone.add(body, glass, screenMesh);
   scene.add(phone);
+
+  /** Screen drawing pixels -> point on the phone (phone's own coordinates). */
+  const anchorLocal = (a: [number, number]) =>
+    new Vector3((a[0] / SCREEN_W - 0.5) * sw, (0.5 - a[1] / SCREEN_H) * sh, SCREEN_Z + 0.02);
+
+  /* ---- Marker: a glowing pulse on the screen where the card is pinned ---- */
+  const markerGroup = new Group();
+  const ringMat = track(new MeshBasicMaterial({ color: 0xff7a4d, transparent: true, opacity: 0.9, blending: AdditiveBlending, depthWrite: false }));
+  const ring = new Mesh(track(new RingGeometry(0.1, 0.14, 40)), ringMat);
+  const coreMat = track(new MeshBasicMaterial({ color: 0xffb08a, transparent: true, opacity: 1, depthWrite: false }));
+  const core = new Mesh(track(new CircleGeometry(0.055, 24)), coreMat);
+  markerGroup.add(ring, core);
+  phone.add(markerGroup);
+  const markerPos = new Vector3();
 
   /* ---- Customer dots ---- */
   const N = 110;
@@ -308,11 +339,11 @@ export function startStory3D(o: Story3DOptions): { dispose: () => void } {
     s: 0.2 + Math.random() * 0.5,
   }));
   dotGeo.setAttribute("position", new BufferAttribute(dotPos, 3));
-  const dotMat = track(new PointsMaterial({ color: 0x25d366, size: 0.08, transparent: true, opacity: 0.8, depthWrite: false }));
+  const dotMat = track(new PointsMaterial({ color: 0x25d366, size: 0.07, transparent: true, opacity: 0.7, depthWrite: false }));
   scene.add(new Points(dotGeo, dotMat));
 
-  /* ---- Pop-out cards (each stop's cards are drawn the first time that stop is near) ---- */
-  type Pop = { mesh: Mesh; mat: MeshBasicMaterial; style: CardStyle; seed: number; index: number; bullet?: number };
+  /* ---- Pop-out cards (each stop's cards are drawn the first time that stop is reached) ---- */
+  type Pop = { mesh: Mesh; mat: MeshBasicMaterial; style: CardStyle; seed: number; index: number };
   const pops: (Pop[] | null)[] = screens.map(() => null);
   const buildCards = (s: number): Pop[] => {
     const existing = pops[s];
@@ -329,38 +360,23 @@ export function startStory3D(o: Story3DOptions): { dispose: () => void } {
       const mesh = new Mesh(track(new PlaneGeometry(style.w, style.h)), mat);
       mesh.visible = false;
       scene.add(mesh);
-      return { mesh, mat, style, seed: Math.random() * 6, index, bullet: text.bullet };
+      return { mesh, mat, style, seed: Math.random() * 6, index };
     });
     pops[s] = list;
     return list;
   };
 
-  /* ---- Bullets in the text (cards fly to them) ---- */
-  const bulletEls: HTMLElement[][] = stops.map((s) => Array.from(s.querySelectorAll<HTMLElement>("[data-bullet]")));
-
-  /** Screen point -> point in the 3D world on the plane z. */
-  const tmpV = new Vector3();
-  const tmpDir = new Vector3();
-  let rect = canvas.getBoundingClientRect();
-  const worldAt = (clientX: number, clientY: number, z: number): [number, number] => {
-    const nx = ((clientX - rect.left) / rect.width) * 2 - 1;
-    const ny = -((clientY - rect.top) / rect.height) * 2 + 1;
-    tmpV.set(nx, ny, 0.5).unproject(camera);
-    tmpDir.copy(tmpV).sub(camera.position).normalize();
-    const t = (z - camera.position.z) / tmpDir.z;
-    return [camera.position.x + tmpDir.x * t, camera.position.y + tmpDir.y * t];
-  };
-
-  /* ---- Size: fit the phone and its cards inside the column ---- */
+  /* ---- Size: fit the phone in the pinned stage ---- */
   let lastW = 0;
   let lastH = 0;
+  let visW = 8;
+  let visH = 8;
   let baseDist = 9;
   let mobile = false;
   let small = false;
   const resize = () => {
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
-    rect = canvas.getBoundingClientRect();
     if (w === lastW && h === lastH) return;
     lastW = w;
     lastH = h;
@@ -370,23 +386,10 @@ export function startStory3D(o: Story3DOptions): { dispose: () => void } {
     renderer.setSize(w, h, false);
     camera.aspect = w / Math.max(1, h);
     camera.updateProjectionMatrix();
-    // Visible height needed: the phone at ~75% of the column height, and enough width for cards
-    const needH = H / (mobile ? 0.8 : 0.7);
-    const needW = mobile ? 6.6 : 6.2;
-    const visH = Math.max(needH, needW / camera.aspect);
+    // Desktop: phone ~60% of the stage height. Phones: ~40% (the card sits below it).
+    visH = Math.max(H / (mobile ? 0.4 : 0.6), (mobile ? 5.4 : 9) / camera.aspect);
+    visW = visH * camera.aspect;
     baseDist = visH / (2 * TAN);
-  };
-
-  /* ---- Scroll position -> (stop, progress within stop) ---- */
-  const readScroll = () => {
-    const line = window.innerHeight * (mobile ? 0.72 : 0.55);
-    const first = stops[0].getBoundingClientRect();
-    if (line < first.top) return 0;
-    for (let i = 0; i < stops.length; i++) {
-      const r = stops[i].getBoundingClientRect();
-      if (line >= r.top && line < r.bottom) return i + (line - r.top) / r.height;
-    }
-    return stops.length - 0.0001;
   };
 
   /* ---- Animation loop ---- */
@@ -398,184 +401,220 @@ export function startStory3D(o: Story3DOptions): { dispose: () => void } {
   let prev = 0;
   let vel = 0;
   let lastKey = "";
-  let lastLit = "";
+  const camLook = new Vector3();
+  const camPos = new Vector3(0, 0, 9);
   const c1 = new Color();
   const c2 = new Color();
+  const projected = new Vector3();
+
+  const lookTarget = new Vector3();
+  const cornerV = new Vector3();
+  const CORNERS: [number, number][] = [
+    [-W / 2, -H / 2],
+    [W / 2, -H / 2],
+    [-W / 2, H / 2],
+    [W / 2, H / 2],
+  ];
 
   const frame = (time: number) => {
     raf = requestAnimationFrame(frame);
+    resize();
     if (t0 === null) {
       t0 = time;
-      resize();
-      cur = prev = readScroll();
+      cur = prev = o.readStep();
     }
-    resize();
 
     const reduced = reducedMQ.matches;
-    const target = readScroll();
-    cur += (target - cur) * (reduced ? 1 : 0.08);
+    const target = o.readStep();
+    cur += (target - cur) * (reduced ? 1 : 0.1);
     vel += ((cur - prev) * 60 - vel) * 0.1;
     prev = cur;
 
     const T = time * 0.001;
-    const si = Math.min(stops.length - 1, Math.floor(cur));
-    const lt = clamp01(cur - si);
+    const k = clamp(Math.floor(cur), 0, steps.length - 1);
+    const lt = clamp01(cur - k); // progress within this step
+    const step = steps[k];
+    const si = step.stop;
 
-    // 360° flip around each stop boundary; the screen swaps while its back faces you
+    // Steps of this stop, to know how far through the chapter we are
+    let firstOfStop = k;
+    while (firstOfStop > 0 && steps[firstOfStop - 1].stop === si) firstOfStop--;
+    let lastOfStop = k;
+    while (lastOfStop < steps.length - 1 && steps[lastOfStop + 1].stop === si) lastOfStop++;
+    const stopCount = lastOfStop - firstOfStop + 1;
+    const stopT = clamp01((k - firstOfStop + lt) / stopCount);
+
+    // 360° flip around each chapter boundary; the screen swaps while its back faces you
     let flip = 0;
     let shown = si;
     if (!reduced) {
-      for (let k = 1; k < stops.length; k++) {
-        const d = cur - k;
+      for (let b = 1; b < steps.length; b++) {
+        if (steps[b].stop === steps[b - 1].stop) continue;
+        const d = cur - b;
         if (Math.abs(d) < FLIP_HALF) {
           const f = ease((d + FLIP_HALF) / (2 * FLIP_HALF));
           flip = f * Math.PI * 2;
-          shown = f < 0.5 ? k - 1 : k;
+          shown = f < 0.5 ? steps[b - 1].stop : steps[b].stop;
         }
       }
     }
-    const showLt = shown === si ? lt : 1;
-    // Redraw the phone screen only at 16 steps per stop (each redraw costs time)
-    const key = `${shown}:${Math.round(showLt * 16)}`;
+    const flipping = flip > 0.15 && flip < Math.PI * 2 - 0.15;
+
+    // Phone screen: items appear as the chapter's cards are reached
+    const screenT = shown === si ? Math.min(1, stopT * 1.15 + 0.05) : 1;
+    const key = `${shown}:${Math.round(screenT * 16)}`;
     if (key !== lastKey) {
       lastKey = key;
-      drawScreen(sg, screens[shown], reduced ? 1 : showLt, { exampleLabel: o.exampleLabel });
+      drawScreen(sg, screens[shown], reduced ? 1 : screenT, { exampleLabel: o.exampleLabel });
       screenTex.needsUpdate = true;
     }
 
-    // Phone pose: slightly right of centre on desktop, leaving room for cards towards the text
+    // Phone pose. Desktop: left of centre (cards sit to its right). Phones: top half.
     const intro = reduced ? 1 : easeOut((time - t0) / 1400); // spin in
     const tilt = TILT[si] ?? [0, 0];
     const sway = reduced ? 0 : 1;
-    const shake = !reduced && si === 1 ? Math.sin(T * 40) * 0.03 * Math.sin(Math.PI * Math.min(1, lt * 1.4)) : 0;
-    const dive = !reduced && si === stops.length - 1 ? ease((lt - 0.15) / 0.6) : 0;
+    const shake = !reduced && si === 1 && step.bullet < 0 ? Math.sin(T * 40) * 0.025 * Math.sin(Math.PI * lt) : 0;
+    const isLastStop = si === screens.length - 1;
+    const dive = !reduced && isLastStop ? ease((stopT - 0.3) / 0.6) : 0;
     phone.rotation.set(
-      tilt[1] + Math.sin(T * 0.8) * 0.04 * sway,
-      tilt[0] + flip + Math.sin(T * 0.5) * 0.08 * sway + (1 - intro) * Math.PI * 2,
-      shake + (reduced ? 0 : clamp(vel * 0.8, -0.2, 0.2)),
+      tilt[1] + Math.sin(T * 0.8) * 0.03 * sway,
+      tilt[0] + flip + Math.sin(T * 0.5) * 0.05 * sway + (1 - intro) * Math.PI * 2,
+      shake + (reduced ? 0 : clamp(vel * 0.5, -0.12, 0.12)),
     );
-    const px = mobile ? 0 : 0.7;
-    const py = Math.sin(T) * 0.06 * sway - (1 - intro) * 5;
+    const px = mobile ? 0 : -visW * 0.2;
+    const py = (mobile ? visH * 0.23 : 0) + Math.sin(T) * 0.05 * sway - (1 - intro) * 5;
     phone.position.set(px, py, 0);
-    phone.scale.setScalar(1 + 0.1 * Math.sin(Math.PI * (flip / (Math.PI * 2))));
-    camera.position.set(0, 0, baseDist * (1 - dive * 0.22));
-    camera.lookAt(px * dive * 0.6, 0, 0);
+    phone.scale.setScalar(1 + 0.08 * Math.sin(Math.PI * (flip / (Math.PI * 2))));
+    phone.updateMatrixWorld();
+
+    // Marker on the screen for this step
+    const anchor = anchorLocal(step.anchor);
+    markerGroup.position.copy(anchor);
+    const pulse = 1 + 0.25 * Math.sin(T * 4);
+    ring.scale.setScalar(pulse);
+    ringMat.opacity = flipping ? 0 : 0.9;
+    coreMat.opacity = flipping ? 0 : 1;
+    markerPos.copy(anchor).applyMatrix4(phone.matrixWorld);
+
+    // Camera: zoom towards the marker on bullet steps, dive in at the end
+    const zoom = reduced ? 0 : step.bullet >= 0 ? 0.08 : 0.02;
+    const tx = lerp(0, markerPos.x - px, zoom * 1.5);
+    const ty = lerp(0, markerPos.y - (mobile ? visH * 0.23 : 0), zoom * 1.5);
+    camPos.set(tx, ty, baseDist * (1 - zoom - dive * 0.25));
+    camera.position.lerp(camPos, reduced ? 1 : 0.08);
+    camLook.lerp(lookTarget.set(tx, ty, 0), reduced ? 1 : 0.08);
+    camera.lookAt(camLook);
     camera.updateMatrixWorld();
 
     // Glow colour drifts towards the next stop's colour
     const next = Math.min(TINT.length - 1, si + 1);
     c1.set(TINT[si] ?? TINT[0]);
     c2.set(TINT[next]);
-    c1.lerp(c2, ease((lt - 0.7) / 0.3));
-    o.onTint?.(`#${c1.getHexString()}`);
+    c1.lerp(c2, ease((stopT - 0.75) / 0.25));
+    o.story.style.setProperty("--story-tint", `#${c1.getHexString()}`);
 
-    // Visible edges of the column at the card plane (cards stay inside the column)
-    const zPlane = 1;
-    const [left, top] = worldAt(rect.left, rect.top, zPlane);
-    const [right, bottom] = worldAt(rect.right, rect.bottom, zPlane);
-
-    // Pop-out cards
-    const cardScale = mobile ? 0.62 : 0.8;
+    // Pop-out cards: burst out at the start of each chapter, on the far side of the phone
     const maxCards = small ? 3 : 99;
+    const cardScale = mobile ? 0.5 : 0.72;
     let visibleCards = 0;
-    const lit = new Set<number>();
-    if (!reduced) {
-      buildCards(si);
-      if (lt > 0.6 && si + 1 < screens.length) buildCards(si + 1);
-    }
+    const chapterT = clamp01((k - firstOfStop + lt) / Math.min(stopCount, 1.6)); // first ~1.6 steps
+    if (!reduced) buildCards(si);
     pops.forEach((list, s) => {
       if (!list) return;
       for (const p of list) {
         const { mesh, mat, style } = p;
-        const hide = reduced || s !== si || p.index >= maxCards || (mobile && s === stops.length - 1);
-        if (hide) {
+        if (reduced || s !== si || p.index >= maxCards || (mobile && isLastStop)) {
           mesh.visible = false;
           continue;
         }
-        const aIn = easeOut((lt - 0.06 - style.delay * 0.6) / 0.22);
-        const aOut = ease((lt - 0.8) / 0.14);
-        const a = aIn * (1 - aOut);
+        const aIn = easeOut((chapterT - 0.1 - style.delay) / 0.25);
+        const aOut = ease((chapterT - 0.7) / 0.25);
+        const a = aIn * (1 - aOut) * 0.92;
         mesh.visible = a > 0.01;
         if (!mesh.visible) continue;
         visibleCards++;
 
-        const halfW = (style.w * cardScale) / 2;
-        const halfH = (style.h * cardScale) / 2;
-        let tx: number;
-        let ty: number;
-        const tz = style.kind === "hero" ? 1.6 : zPlane;
-        const bulletEl = p.bullet !== undefined ? bulletEls[s][p.bullet] : undefined;
-
-        if (bulletEl && !mobile) {
-          // Fly to the left edge of the column, level with the bullet it illustrates
-          const r = bulletEl.getBoundingClientRect();
-          const [, by] = worldAt(rect.left, r.top + r.height / 2, tz);
-          tx = left + halfW + 0.1;
-          ty = by;
-        } else {
-          let [ox, oy] = style.to;
-          if (style.kind === "orbit") {
-            const ang = lt * Math.PI * 0.6;
-            ox = style.to[0] * Math.cos(ang);
-            oy = style.to[1] + Math.sin(ang + p.seed) * 0.3;
-          }
-          tx = px + ox * (mobile ? 0.85 : 1);
-          ty = oy * (mobile ? 0.8 : 1);
+        let [ox, oy] = style.to;
+        const oz = style.to[2];
+        if (!mobile) ox = -Math.abs(ox); // desktop: the far side from the page cards
+        if (style.kind === "orbit") {
+          const ang = chapterT * Math.PI * 0.6;
+          ox = ox * Math.cos(ang);
+          oy = oy + Math.sin(ang + p.seed) * 0.25;
         }
-        tx = clamp(tx, left + halfW + 0.05, right - halfW - 0.05);
-        ty = clamp(ty, bottom + halfH + 0.05, top - halfH - 0.05);
-
-        const bob = Math.sin(T * 1.3 + p.seed) * 0.06;
-        const sx = px;
-        const sy = 0;
-        const sz = 0.3;
-        const x = sx + (tx - sx) * aIn;
-        let y = sy + (ty - sy) * aIn + bob;
-        let z = sz + (tz - sz) * aIn;
+        if (mobile) {
+          ox *= 0.75;
+          oy = oy * 0.45 + 0.4;
+        }
+        // Keep the card inside what the camera actually sees at the card's depth
+        const halfW = (style.w * cardScale) / 2;
+        const seeH = 2 * TAN * Math.max(1, camera.position.z - oz);
+        const seeW = seeH * camera.aspect;
+        const cx0 = camera.position.x;
+        const cy0 = camera.position.y;
+        const tx2 = clamp(px + ox, cx0 - seeW / 2 + halfW + 0.25, cx0 + seeW / 2 - halfW - 0.25);
+        const ty2 = clamp(py + oy, cy0 - seeH / 2 + 0.5, cy0 + seeH / 2 - 0.5);
+        const bob = Math.sin(T * 1.3 + p.seed) * 0.05;
+        let x = px + (tx2 - px) * aIn;
+        let y = py + (ty2 - py) * aIn + bob;
+        let z = 0.3 + (oz - 0.3) * aIn;
         if (style.kind === "fall") {
-          y -= aOut * aOut * 4;
-          z += aOut;
-          mesh.rotation.z = aOut * (p.seed > 3 ? 1 : -1) * 1.2;
+          y -= aOut * aOut * 3;
+          z += aOut * 0.6;
+          mesh.rotation.z = aOut * (p.seed > 3 ? 1 : -1) * 1.1;
         } else {
-          z -= aOut * 1.2;
+          z -= aOut;
           mesh.rotation.z = Math.sin(T * 0.7 + p.seed) * 0.04;
         }
-        if (style.kind === "hero") z += Math.sin(T * 1.1) * 0.12;
+        x = clamp(x, -visW / 2, visW / 2);
         mesh.position.set(x, y, z);
-        mesh.rotation.y = (1 - aIn) * Math.PI * 0.9 + Math.sin(T * 0.6 + p.seed) * 0.1;
+        mesh.rotation.y = (1 - aIn) * Math.PI * 0.9 + Math.sin(T * 0.6 + p.seed) * 0.08;
         mesh.rotation.x = (1 - aIn) * 0.4;
         mesh.scale.setScalar(cardScale * (0.3 + 0.7 * aIn) * (style.kind === "hero" ? 1.1 : 1));
         mat.opacity = a;
-
-        // Light up the matching bullet once the card has arrived
-        if (a > 0.6) lit.add(p.bullet ?? -1);
       }
     });
-    const litKey = `${si}:${[...lit].sort().join(",")}`;
-    if (litKey !== lastLit) {
-      lastLit = litKey;
-      o.onLit?.(si, [...lit]);
-    }
 
     // Customer dots: blown away by the problem, then gathering round the phone
-    const gather = si === 1 ? -0.5 * ease(lt * 1.5) : si === 0 ? 0 : Math.min(1, (si - 1) / 5 + lt / 5);
+    const gather = si === 1 ? -0.5 * ease(stopT * 1.5) : si === 0 ? 0 : Math.min(1, (si - 1) / 5 + stopT / 5);
     dotMat.color.set(si === 1 ? 0xff6b6b : 0x25d366);
-    dotMat.opacity = si === 1 ? 0.55 : 0.85;
-    dotMat.size = mobile ? 0.07 : 0.08;
+    dotMat.opacity = si === 1 ? 0.5 : 0.7;
     const spin = reduced ? 0 : 1;
     for (let q = 0; q < N; q++) {
       const sd = seeds[q];
       const ang = sd.a + T * sd.s * (si === 1 ? 1.2 : 0.35) * spin;
-      const r = sd.r * (1 - 0.5 * gather) + (si === 1 ? 2 * ease(lt) : 0);
+      const r = sd.r * (1 - 0.5 * gather) + (si === 1 ? 2 * ease(stopT) : 0);
       dotPos[q * 3] = px + Math.cos(ang) * r;
-      dotPos[q * 3 + 1] = sd.y * (1 - 0.4 * gather);
+      dotPos[q * 3 + 1] = py + sd.y * (1 - 0.4 * gather) * (mobile ? 0.5 : 1);
       dotPos[q * 3 + 2] = Math.sin(ang) * r - 1.5;
     }
     dotGeo.attributes.position.needsUpdate = true;
 
     renderer.render(scene, camera);
+
+    // Tell the page where the marker and the phone are, so the card sits just outside the phone
+    const cw = canvas.clientWidth;
+    const ch = canvas.clientHeight;
+    const toScreen = (v: Vector3): [number, number] => {
+      projected.copy(v).project(camera);
+      return [(projected.x * 0.5 + 0.5) * cw, (-projected.y * 0.5 + 0.5) * ch];
+    };
+    const [mx, my] = toScreen(markerPos);
+    let l = Infinity;
+    let r = -Infinity;
+    let tp = Infinity;
+    let b = -Infinity;
+    for (const [cx, cy] of CORNERS) {
+      const [sx, sy] = toScreen(cornerV.set(cx, cy, 0).applyMatrix4(phone.matrixWorld));
+      l = Math.min(l, sx);
+      r = Math.max(r, sx);
+      tp = Math.min(tp, sy);
+      b = Math.max(b, sy);
+    }
+    o.onFrame?.({ x: mx, y: my, visible: !flipping && intro > 0.9, box: { left: l, right: r, top: tp, bottom: b } });
     canvas.dataset.stop = screens[si]?.id ?? "";
     canvas.dataset.shown = screens[shown]?.id ?? "";
+    canvas.dataset.currentStep = String(k);
     canvas.dataset.cards = String(visibleCards); // read by the tests
   };
 
@@ -598,7 +637,7 @@ export function startStory3D(o: Story3DOptions): { dispose: () => void } {
     },
     { rootMargin: "100px 0px" },
   );
-  io.observe(stops[0].closest("#story") ?? canvas);
+  io.observe(o.story);
   document.addEventListener("visibilitychange", update);
   update();
 
@@ -608,7 +647,6 @@ export function startStory3D(o: Story3DOptions): { dispose: () => void } {
       cancelAnimationFrame(raf);
       io.disconnect();
       document.removeEventListener("visibilitychange", update);
-      o.onLit?.(-1, []);
       disposables.forEach((d) => d.dispose());
       renderer.dispose();
     },

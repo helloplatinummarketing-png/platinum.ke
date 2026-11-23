@@ -1,19 +1,19 @@
 /**
- * LAYER 3 TESTS: the 3D phone story.
- * Headless Edge draws WebGL in software, so these check behaviour, not speed.
+ * LAYER 3 TESTS: the pinned 3D phone story.
+ * Headless Edge here uses the laptop's graphics chip, so these check behaviour, not speed.
  */
 import { expect, test, type Page } from "@playwright/test";
 
-const stops = ["hero", "problem", "ai", "website", "whatsapp", "how", "cta"];
-
-async function scrollToStop(page: Page, id: string, at = 0.5) {
-  await page.locator(`#stop-${id}`).evaluate((el, at) => {
-    const r = el.getBoundingClientRect();
-    // put a point `at` of the way through the stop on the line the 3D reads
-    // (55% down on desktop, 72% on phones, below the phone)
-    const line = window.innerWidth < 768 ? 0.72 : 0.55;
-    window.scrollBy(0, r.top + r.height * at - window.innerHeight * line);
-  }, at);
+/** Scroll so step k (0-based) is half-way through. */
+async function scrollToStep(page: Page, k: number) {
+  await page.evaluate((k) => {
+    const story = document.getElementById("story")!;
+    const stage = story.querySelector<HTMLElement>(".story-grid")!;
+    const n = story.querySelectorAll(".story-card[data-step]").length;
+    const span = story.offsetHeight - stage.offsetHeight;
+    const top = story.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo(0, top + ((k + 0.5) / n) * span);
+  }, k);
 }
 
 test("three.js is not part of the first download, and only loads on the home page", async ({ page }) => {
@@ -25,11 +25,11 @@ test("three.js is not part of the first download, and only loads on the home pag
   await page.goto("/about?layer=3");
   await page.waitForLoadState("load");
   await page.waitForTimeout(1500);
-  const sizes = await Promise.all(
-    early.map(async (u) => (await page.request.get(u)).text().then((t) => ({ u, three: /WebGLRenderer|THREE\.WebGLRenderer|webgl2/.test(t) }))),
+  const found = await Promise.all(
+    early.map(async (u) => ({ u, three: /webgl2/.test(await (await page.request.get(u)).text()) })),
   );
   expect(early.length, "the site's scripts were seen").toBeGreaterThan(0);
-  expect(sizes.filter((s) => s.three).map((s) => s.u), "three.js loaded on /about").toEqual([]);
+  expect(found.filter((s) => s.three).map((s) => s.u), "three.js loaded on /about").toEqual([]);
 });
 
 test("on the home page, three.js arrives only after the page has loaded", async ({ page }) => {
@@ -47,28 +47,7 @@ test("on the home page, three.js arrives only after the page has loaded", async 
   expect(seen.every((s) => s.afterLoad), "three.js downloaded before the page finished loading").toBe(true);
 });
 
-test("3D phone loads after the page appears and follows the story", async ({ page }, info) => {
-  await page.goto("/?layer=3");
-  // The page (text) is usable before the 3D arrives
-  await expect(page.locator("h1")).toBeVisible();
-  await expect(page.locator("html")).toHaveClass(/story-3d-on/, { timeout: 20_000 });
-  const canvas = page.locator(".story-3d-stage canvas");
-  await expect(canvas).toHaveAttribute("data-running", "true");
-  await expect(page.locator(".flat-phone")).toHaveCount(0); // the flat phone stepped aside
-
-  const shots = `test-results/screens/layer3-${info.project.name.replace(/\W+/g, "-")}`;
-  for (const [n, id] of stops.entries()) {
-    await scrollToStop(page, id, id === "cta" ? 0.7 : 0.5);
-    await expect(canvas).toHaveAttribute("data-stop", id, { timeout: 10_000 });
-    await expect(canvas).toHaveAttribute("data-shown", id, { timeout: 10_000 });
-    await page.waitForTimeout(1800); // let the cards fly out
-    const cards = Number(await canvas.getAttribute("data-cards"));
-    if (info.project.name.includes("360")) expect(cards, "max 3 cards on small phones").toBeLessThanOrEqual(3);
-    await page.screenshot({ path: `${shots}/${n + 1}-${id}.png` });
-  }
-});
-
-test("3D waits for the visitor's first scroll or touch; a still phone shows until then", async ({ page }) => {
+test("3D waits for the visitor's first scroll or touch; a still phone and the first card show until then", async ({ page }) => {
   let threeLoaded = false;
   page.on("response", async (r) => {
     if (r.request().resourceType() === "script" && r.url().includes("/_next/")) {
@@ -81,32 +60,58 @@ test("3D waits for the visitor's first scroll or touch; a still phone shows unti
   await page.waitForLoadState("load");
   await page.waitForTimeout(1500);
   await expect(page.locator(".story-3d-poster img")).toBeVisible();
+  await expect(page.locator("#stop-hero .stop-intro")).toBeVisible();
+  await expect(page.locator("h1")).toBeVisible();
   expect(threeLoaded, "three.js downloaded before any interaction").toBe(false);
   await page.mouse.wheel(0, 300); // first scroll
   await expect(page.locator("html")).toHaveClass(/story-3d-on/, { timeout: 20_000 });
   await expect.poll(() => threeLoaded).toBe(true);
 });
 
-test("the 3D phone sits beside the text, and bullets light up as their cards arrive", async ({ page }) => {
+test("each card is pinned beside its marker on the phone, one step at a time", async ({ page }, info) => {
+  test.setTimeout(120_000); // 17 steps with a pause at each
   await page.goto("/?layer=3");
   await expect(page.locator("html")).toHaveClass(/story-3d-on/, { timeout: 20_000 });
+  const canvas = page.locator(".story-3d-stage canvas");
+  await expect(canvas).toHaveAttribute("data-running", "true");
+  await expect(page.locator(".flat-phone")).toHaveCount(0); // the flat phone stepped aside
 
-  // The phone is in its own column, not behind the text
-  const stage = await page.locator(".story-3d-stage").boundingBox();
-  const text = await page.locator("#stop-problem h2").boundingBox();
-  const vw = page.viewportSize()!.width;
-  if (vw >= 768) expect(stage!.x, "phone column is to the right of the text").toBeGreaterThanOrEqual(text!.x + text!.width - 1);
-  else expect(stage!.width, "phone fills the column on phones").toBeGreaterThan(vw * 0.8);
+  const n = await page.locator("#story .story-card[data-step]").count();
+  expect(n, "intro + bullet cards").toBeGreaterThanOrEqual(15);
+  const shots = `test-results/screens/layer3-${info.project.name.replace(/\W+/g, "-")}`;
+  const stage = (await page.locator(".story-grid").boundingBox())!;
 
-  // Problem stop: each bullet lights up when its card arrives
-  await scrollToStop(page, "problem", 0.55);
-  await expect(page.locator('#stop-problem [data-bullet="0"]')).toHaveClass(/is-lit/, { timeout: 10_000 });
-  await expect(page.locator('#stop-problem [data-bullet="2"]')).toHaveClass(/is-lit/, { timeout: 10_000 });
+  for (let k = 0; k < n; k++) {
+    await scrollToStep(page, k);
+    await expect(canvas).toHaveAttribute("data-current-step", String(k), { timeout: 10_000 });
+    await page.waitForTimeout(900); // let the phone settle on the marker
+    const card = page.locator(`#story .story-card[data-step="${k}"]`);
+    await expect(card).toHaveClass(/is-active/);
+    await expect(card).toBeVisible();
+    // Only one card at a time
+    await expect(page.locator("#story .story-card.is-active")).toHaveCount(1);
+    // The card is inside the pinned stage
+    const box = (await card.boundingBox())!;
+    expect(box.x).toBeGreaterThanOrEqual(stage.x - 1);
+    expect(box.x + box.width).toBeLessThanOrEqual(stage.x + stage.width + 1);
+    expect(box.y + box.height).toBeLessThanOrEqual(stage.y + stage.height + 1);
+    // The line from the marker to the card is showing
+    await expect(page.locator(".story-leader line")).toHaveAttribute("opacity", "1");
+    // Small phones: at most 3 pop-out cards
+    if (info.project.name.includes("360")) {
+      expect(Number(await canvas.getAttribute("data-cards"))).toBeLessThanOrEqual(3);
+    }
+    const id = await card.getAttribute("data-stop-id");
+    await page.screenshot({ path: `${shots}/${String(k + 1).padStart(2, "0")}-${id}.png` });
+  }
+});
 
-  // AI stop has no bullets: the whole text block lights up
-  await scrollToStop(page, "ai", 0.6);
-  await expect(page.locator("#stop-ai")).toHaveClass(/is-lit/, { timeout: 10_000 });
-  await expect(page.locator("#stop-problem .is-lit")).toHaveCount(0);
+test("the counter shows the chapter and the step", async ({ page }) => {
+  await page.goto("/?layer=3");
+  await expect(page.locator("html")).toHaveClass(/story-3d-on/, { timeout: 20_000 });
+  const problemFirst = Number(await page.locator('#stop-problem [data-bullet="0"]').getAttribute("data-step"));
+  await scrollToStep(page, problemFirst);
+  await expect(page.locator(".story-counter")).toContainText(/02 · The problem\s+2 \/ 4/i);
 });
 
 test("rendering pauses when the story is off-screen", async ({ page }) => {
@@ -116,7 +121,7 @@ test("rendering pauses when the story is off-screen", async ({ page }) => {
   await expect(canvas).toHaveAttribute("data-running", "true");
   await page.locator("footer").scrollIntoViewIfNeeded();
   await expect(canvas).toHaveAttribute("data-running", "false");
-  await page.locator("h1").scrollIntoViewIfNeeded();
+  await page.evaluate(() => window.scrollTo(0, 0));
   await expect(canvas).toHaveAttribute("data-running", "true");
 });
 
