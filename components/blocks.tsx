@@ -39,7 +39,10 @@ export function SectionHeading({ id, kicker, children }: { id: string; kicker?: 
 
 export function CtaButton({ link, variant = "primary" }: { link: LinkT; variant?: "primary" | "ghost" }) {
   return (
-    <Link href={link.href} className={`btn btn-${variant}`} data-track="cta-click">
+    <Link href={link.href} className={`btn btn-${variant}`}
+      data-umami-event="cta-click"
+      data-umami-event-label={link.label}
+    >
       {link.label}
     </Link>
   );

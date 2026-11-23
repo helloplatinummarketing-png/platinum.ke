@@ -27,7 +27,7 @@ for (const pg of pages) {
     // Header, footer and WhatsApp button are on every page
     await expect(page.locator("header")).toBeVisible();
     await expect(page.locator("footer")).toBeVisible();
-    await expect(page.locator('[data-track="whatsapp-click"]').first()).toBeVisible();
+    await expect(page.locator('[data-umami-event="whatsapp-click"]').first()).toBeVisible();
 
     // A clear CTA to the contact page (the contact page has the form button instead)
     if (pg.path === "/contact") {

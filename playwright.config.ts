@@ -34,9 +34,9 @@ export default defineConfig({
     },
     // Layers 2 and 3 (JavaScript on)
     {
-      name: "js 360px",
+      name: "js 390px",
       testMatch: /layer2|layer3/,
-      use: { viewport: { width: 360, height: 740 }, isMobile: true, hasTouch: true },
+      use: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true },
     },
     { name: "js 1280px", testMatch: /layer2|layer3/, use: { viewport: { width: 1280, height: 800 } } },
   ],

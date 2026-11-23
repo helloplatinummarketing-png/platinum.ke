@@ -19,7 +19,7 @@ export function Services() {
             <p className="kicker mt-5">{c.label}</p>
             <h3 className="mt-2 text-xl font-extrabold">{c.title}</h3>
             <p className="mt-3 flex-1 text-muted">{c.text}</p>
-            <Link href={c.link.href} className="mt-5 font-bold text-accent" data-track="cta-click">
+            <Link href={c.link.href} className="mt-5 font-bold text-accent" data-umami-event="cta-click">
               {c.link.label} <span aria-hidden="true">→</span>
               <span className="sr-only"> about {c.label}</span>
             </Link>

@@ -3,7 +3,6 @@ import { Footer } from "@/components/Footer";
 import { Analytics } from "@/components/Analytics";
 import { Header } from "@/components/Header";
 import { JsonLd } from "@/components/JsonLd";
-import { TrackClicks } from "@/components/TrackClicks";
 import { WhatsAppFloat } from "@/components/WhatsAppFloat";
 import { seo, site } from "@/content/site";
 import { layerScript } from "@/lib/layer-script";
@@ -43,7 +42,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </main>
         <Footer />
         <WhatsAppFloat />
-        <TrackClicks />
         <Analytics
           websiteId={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID || undefined}
           domain={new URL(site.url).hostname}

@@ -15,7 +15,7 @@ export function WhatsAppFloat() {
       href={whatsappHref(contact)}
       className="fixed bottom-4 right-4 z-50 grid size-14 place-items-center rounded-full bg-wa text-wa-ink shadow-[0_6px_20px_rgb(0_0_0/0.45)] sm:bottom-6 sm:right-6"
       aria-label={hasNumber ? whatsappFloat.label : whatsappFloat.labelNoNumber}
-      data-track="whatsapp-click"
+      data-umami-event="whatsapp-click"
       {...(hasNumber ? { target: "_blank", rel: "noopener" } : {})}
     >
       {/* Simple chat-bubble icon (drawn here, no icon library) */}

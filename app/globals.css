@@ -402,6 +402,429 @@ h3 {
   }
 }
 
+/* ================================================================== */
+/* HOME PHOTO STORY (components/story/PhotoStory.tsx)                  */
+/* Layer 1 = default (stacked sections). html.story-flat = pinned story */
+/* (Layer 2), html.can-3d = pinned story + 3D light layer (Layer 3).   */
+/* ================================================================== */
+.story-stage-only {
+  display: none;
+}
+
+html.story-flat #story {
+  position: relative;
+  height: calc(var(--story-screens, 10) * 100vh);
+  height: calc(var(--story-screens, 10) * 100svh);
+  background: #03060d;
+  border: 0;
+}
+html.story-flat .story-pin {
+  position: sticky;
+  top: 64px; /* under the site header */
+  height: calc(100vh - 64px);
+  height: calc(100svh - 64px);
+  overflow: hidden;
+}
+html.story-flat .story-note {
+  display: none; /* the stage shows the note instead */
+}
+
+/* Invisible scroll markers (Layer 2): crossing the middle of the screen at
+   the same scroll point where p = --p in Layer 3 */
+html.story-flat .story-markers {
+  display: block;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.story-markers i {
+  /* each zone covers its step: from p to the next step's q, offset by half a screen */
+  position: absolute;
+  left: 0;
+  width: 1px;
+  top: calc(var(--p) * ((var(--story-screens, 10) - 1) * 100svh + 64px) + 50svh);
+  height: calc((var(--q) - var(--p)) * ((var(--story-screens, 10) - 1) * 100svh + 64px));
+}
+
+/* ---- Photos: cross-fade, gentle zoom 1.02 -> 1.07, light filters ---- */
+html.story-flat .story-bgs {
+  display: block;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #03060d;
+}
+.story-bg {
+  position: absolute;
+  inset: -2%;
+  opacity: 0;
+  transform: scale(1.02);
+  transition:
+    opacity 0.9s ease,
+    transform 9s linear;
+  will-change: opacity, transform;
+}
+.story-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.story-bg.on {
+  opacity: 1;
+  transform: scale(1.07);
+}
+html.story-3d-on .story-bg {
+  transition: none; /* Layer 3 moves the photos with the scroll */
+}
+/* Shade only behind the text panel (left on desktop, bottom on phones) */
+.story-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgb(3 6 13 / 0.72) 0%, rgb(3 6 13 / 0.25) 38%, rgb(3 6 13 / 0) 60%),
+    linear-gradient(0deg, rgb(3 6 13 / 0.45), rgb(3 6 13 / 0) 25%);
+}
+@media (max-width: 759px) {
+  .story-shade {
+    background: linear-gradient(0deg, rgb(3 6 13 / 0.85) 0%, rgb(3 6 13 / 0.35) 40%, rgb(3 6 13 / 0) 60%);
+  }
+}
+
+/* ---- Layer 2: still picture of the lit tower (from chapter 02 on) ---- */
+html.story-flat .story-tower {
+  display: block;
+  position: absolute;
+  z-index: 2;
+  right: 12%;
+  bottom: 4%;
+  height: 72%;
+  width: auto;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s ease;
+  pointer-events: none;
+}
+html.story-flat #story:not([data-ch="0"]):not([data-ch="1"]) .story-tower {
+  opacity: 1;
+  transform: none;
+}
+html.can-3d .story-tower {
+  display: none;
+}
+@media (max-width: 759px) {
+  html.story-flat .story-tower {
+    right: 50%;
+    translate: 50% 0;
+    bottom: auto;
+    top: 4%;
+    height: 44%;
+  }
+}
+
+/* ---- Layer 3: the light layer canvas and the dashed line ---- */
+html.can-3d .story-city {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+html.can-3d .story-lead {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+  overflow: visible;
+  opacity: 0;
+}
+.story-lead path {
+  fill: none;
+  stroke: var(--amber);
+  stroke-width: 2;
+  stroke-dasharray: 6 6;
+  opacity: 0.9;
+}
+.story-lead circle {
+  fill: var(--amber);
+}
+@media (max-width: 759px) {
+  html.can-3d .story-lead {
+    display: none; /* phones: only the active visual, no line */
+  }
+}
+
+/* ---- Credit, chapter rail, illustration note ---- */
+html.story-flat .story-credits {
+  display: block;
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  z-index: 6;
+  font-size: 10px;
+  color: rgb(255 255 255 / 0.6);
+}
+.story-credit {
+  display: none;
+}
+.story-credit.on {
+  display: inline;
+}
+html.story-flat .story-rail {
+  display: flex;
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 6;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.story-rail li {
+  opacity: 0.4;
+}
+.story-rail li.on {
+  opacity: 1;
+  color: var(--amber);
+  font-weight: 800;
+}
+html.story-flat .story-tag {
+  display: block;
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  z-index: 6;
+  font-size: 10px;
+  color: rgb(255 255 255 / 0.45);
+}
+@media (max-width: 759px) {
+  html.story-flat .story-credits {
+    right: auto;
+    left: 12px;
+    top: 8px;
+    bottom: auto;
+  }
+  html.story-flat .story-rail {
+    right: 6px;
+    top: 26%;
+  }
+  html.story-flat .story-tag {
+    left: auto;
+    right: 12px;
+    top: 8px;
+    bottom: auto;
+    max-width: 55%;
+    text-align: right;
+  }
+}
+
+/* ---- The chapters become one text panel at a time ---- */
+html.story-flat .story-chapters {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+html.story-flat .photo-ch,
+html.story-flat .photo-ch > .container-page {
+  display: contents;
+}
+html.story-flat .ch-photo {
+  display: none;
+}
+html.story-flat .ch-copy {
+  position: absolute;
+  left: 5vw;
+  top: 50%;
+  width: min(460px, 40vw);
+  max-width: none;
+  max-height: calc(100% - 40px);
+  overflow: auto;
+  margin: 0;
+  padding: 26px 26px 22px;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 22px;
+  background: rgb(7 12 26 / 0.82);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-42%);
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease,
+    visibility 0s linear 0.5s;
+  pointer-events: auto;
+}
+html.story-flat .ch-copy.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%);
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease,
+    visibility 0s;
+}
+html.story-flat [data-chapter-id="hero"] .ch-copy {
+  background: transparent;
+  border: 0;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  padding: 0;
+}
+html.story-flat .ch-copy h1 {
+  font-size: clamp(34px, 5.2vw, 62px);
+}
+html.story-flat .ch-copy h2 {
+  font-size: clamp(24px, 3.2vw, 38px);
+}
+html.story-flat .ch-copy p,
+html.story-flat .ch-copy li {
+  font-size: 15px;
+}
+@media (max-width: 759px) {
+  html.story-flat .ch-copy {
+    left: 4vw;
+    right: 4vw;
+    width: auto;
+    top: auto;
+    /* above the floating WhatsApp button, so it never covers a CTA */
+    bottom: 84px;
+    max-height: calc(100% - 100px);
+    padding: 16px 16px 12px;
+    transform: translateY(20px);
+  }
+  html.story-flat .ch-copy.show {
+    transform: none;
+  }
+  html.story-flat [data-chapter-id="hero"] .ch-copy {
+    padding: 16px;
+    background: rgb(7 12 26 / 0.82);
+    border: 1px solid rgb(255 255 255 / 0.08);
+  }
+  html.story-flat .ch-copy h1 {
+    font-size: 30px;
+  }
+  html.story-flat .ch-copy h2 {
+    font-size: 22px;
+  }
+  html.story-flat .ch-copy .ch-num {
+    font-size: 30px;
+  }
+  html.story-flat .ch-copy p,
+  html.story-flat .ch-copy li {
+    font-size: 14px;
+  }
+  html.story-flat .ch-step-text {
+    display: none; /* phones: bullet titles only, so the panel fits */
+  }
+}
+
+/* ---- Bullets light up in turn: "on" now, "done" before ---- */
+html.story-flat .ch-step {
+  opacity: 0.38;
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
+}
+html.story-flat .ch-step.done {
+  opacity: 0.8;
+}
+html.story-flat .ch-step.done .ch-dot {
+  background: var(--wa);
+}
+html.story-flat .ch-step.on {
+  opacity: 1;
+  transform: translateX(6px);
+}
+html.story-flat .ch-step.on .ch-dot {
+  box-shadow: 0 0 0 5px rgb(255 181 71 / 0.25);
+}
+html.story-flat [data-chips] .ch-step.on {
+  transform: none;
+  border-color: var(--amber);
+}
+@media (max-width: 759px) {
+  html.story-flat .ch-step.on {
+    transform: none;
+  }
+}
+
+/* ---- AI chat: the answer appears with the lock ---- */
+html.story-flat .ch-a {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s ease;
+}
+html.story-flat .ch-a.show {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---- Layer 3 loader: "Switching on the city lights…" ---- */
+html.can-3d .story-loader {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #03060d;
+  transition: opacity 0.7s ease;
+}
+.story-loader b {
+  font-size: 56px;
+  font-weight: 800;
+  color: var(--amber);
+  font-variant-numeric: tabular-nums;
+}
+.story-loader span {
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+html.can-3d .story-loader.done {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---- Reduced motion: photos fade, bullets light instantly, nothing moves ---- */
+@media (prefers-reduced-motion: reduce) {
+  html.story-flat .story-bg {
+    transform: none !important;
+    transition: opacity 0.6s ease !important;
+  }
+  html.story-flat .story-tower {
+    transform: none !important;
+    transition: opacity 0.6s ease !important;
+  }
+  html.story-flat .ch-copy {
+    transform: translateY(-50%) !important;
+    transition: opacity 0.4s ease !important;
+  }
+  html.story-flat .ch-step,
+  html.story-flat .ch-step.on {
+    transform: none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) and (max-width: 759px) {
+  html.story-flat .ch-copy {
+    transform: none !important;
+  }
+}
+
 /* Reusable pieces (kept small; most styling is Tailwind classes) */
 @layer components {
   .container-page {

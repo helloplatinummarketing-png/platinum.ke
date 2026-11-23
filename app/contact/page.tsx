@@ -63,7 +63,7 @@ export default function ContactPage() {
                   <a
                     href={whatsappHref(contact)}
                     className="btn btn-primary"
-                    data-track="whatsapp-click"
+                    data-umami-event="whatsapp-click"
                     target="_blank"
                     rel="noopener"
                   >
