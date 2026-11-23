@@ -96,7 +96,7 @@ test("with JavaScript on, form errors show on the page without leaving it", asyn
   await page.locator('select[name="need"]').selectOption("Not sure");
   await page.locator('#contact-form button[type="submit"]').click();
   // No delivery is configured in tests, so the server answers "failed": the page must say so in place.
-  await expect(page.locator('#contact-form [role="status"]')).toContainText(/something went wrong|Thanks/i);
+  await expect(page.locator('#contact-form [role="status"]')).toContainText(/didn't send|Thanks/i);
   await expect(page).toHaveURL(/\/contact$/);
   await ctx.close();
 });

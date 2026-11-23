@@ -45,13 +45,13 @@ export const site = {
 export const contact: Contact = {
   // The previous site's number and email, per Austin (23 Nov 2026).
   // It's a UK number, shown in international form so Kenyan visitors can call/WhatsApp it.
-  // TODO: confirm this number is on WhatsApp (the WhatsApp buttons use it).
+  // Confirmed on WhatsApp by Austin (23 Nov 2026).
   phoneDisplay: "+44 7594 217753",
   phoneDigits: "447594217753",
   whatsappDigits: "447594217753",
   whatsappMessage: "Hi Platinum, I'd like my free AI Visibility Check.",
   email: "helloplatinummarketing@gmail.com",
-  bookingUrl: null, // TODO: Victor to provide Calendly / Cal.com link
+  bookingUrl: "https://cal.com/platinummarketingagency/15min", // the previous site's booking link (Austin, 23 Nov 2026)
   location: "Nairobi, Kenya",
   locationNote: "No physical office. We work remotely across Kenya.",
   mapQuery: "Nairobi, Kenya",
@@ -746,6 +746,7 @@ export const contactPage = {
   bookingButton: "Book Your Free Check",
   whatsappHeading: "Prefer WhatsApp?",
   whatsappButton: "Chat on WhatsApp",
+  emailButton: "Email us",
   formHeading: "Or send us a message",
   form: {
     name: "Your name",
@@ -758,7 +759,8 @@ export const contactPage = {
     sending: "Sending…",
     // Interface text (not in the brief). TODO: Victor to confirm, and add a reply time if he wants one.
     success: "Thanks! We got your message and will be in touch soon.",
-    error: "Sorry, something went wrong. Please try WhatsApp or email instead.",
+    // Until form delivery is set up, every send ends here, so it gives the real ways to reach us.
+    error: `Sorry, your message didn't send. Please WhatsApp us on ${contact.phoneDisplay} or email ${contact.email}.`,
     tooMany: "Too many messages from this connection. Please wait a few minutes, or use WhatsApp.",
     fixErrors: "Please check the highlighted fields.",
     backHome: "Back to the home page",
@@ -794,8 +796,6 @@ export const pricingPage = {
 
 export const todos = [
   "Brand colours, fonts and final logo",
-  "Confirm +44 7594 217753 is on WhatsApp (the WhatsApp buttons use it)",
-  "Calendly / Cal.com booking link",
   "WhatsApp tool cost (Meta changed pricing in Oct 2026)",
   "Confirm WhatsApp coexistence (keeping an existing number) in Kenya",
   "Notice period for cancelling",
