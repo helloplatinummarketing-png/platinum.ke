@@ -77,24 +77,24 @@
 
 ## 5. "To come": what Victor needs to send
 
-1. **Domain:** `.co.ke` or `.com`
-2. **Brand:** colours, fonts and final logo (placeholders now)
-3. **Kenya phone number**
-4. **WhatsApp Business number** (the floating button and "WhatsApp us" go to the contact page until then)
-5. **Email address**
-6. **Calendly / Cal.com booking link**
-7. **WhatsApp tool cost per month** (Meta changed pricing in October 2026)
-8. **Confirm** customers can keep their existing WhatsApp number in Kenya
-9. **Notice period** for "Cancel anytime"
-10. **What "Repeat Business Follow-Up" does** (in the WhatsApp Growth package)
-11. **Which AI Visibility tier** is included in WhatsApp Full System
-12. **No-Show Recovery:** real numbers, or keep "Many rebook straight away"
-13. **Reply time** to show after the contact form (now "We'll be in touch soon")
-14. **3 real testimonials** (with the clients' OK)
-15. **Real numbers** for the stats bar (businesses served, leads, reviews)
-16. **Team:** a one-line bio and a photo for Victor, Austin, Samara and Ann, **plus each person's OK** to show their name and photo
-17. **Form delivery:** Google Sheet or email set-up (README section 4)
-18. **Vercel plan:** the free Hobby plan doesn't allow commercial sites, so Pro (or another host) is needed
+**Settled on 23 Nov (Austin):** the site uses the previous site's number (**+44 7594 217753**),
+email (**helloplatinummarketing@gmail.com**) and domain (**www.platinummarketingagency.co.uk**).
+
+1. **Brand:** colours, fonts and final logo (placeholders now)
+2. **Confirm +44 7594 217753 is on WhatsApp** (the WhatsApp buttons use it)
+3. **Calendly / Cal.com booking link**
+4. **WhatsApp tool cost per month** (Meta changed pricing in October 2026)
+5. **Confirm** customers can keep their existing WhatsApp number in Kenya
+6. **Notice period** for "Cancel anytime"
+7. **What "Repeat Business Follow-Up" does** (in the WhatsApp Growth package)
+8. **Which AI Visibility tier** is included in WhatsApp Full System
+9. **No-Show Recovery:** real numbers, or keep "Many rebook straight away"
+10. **Reply time** to show after the contact form (now "We'll be in touch soon")
+11. **3 real testimonials** (with the clients' OK)
+12. **Real numbers** for the stats bar (businesses served, leads, reviews)
+13. **Team:** a one-line bio and a photo for Victor, Austin, Samara and Ann, **plus each person's OK** to show their name and photo
+14. **Form delivery:** Google Sheet or email set-up (README section 4)
+15. **Vercel plan:** the free Hobby plan doesn't allow commercial sites, so Pro (or another host) is needed
 
 ## 6. Honesty fixes made to the brief
 

@@ -57,7 +57,7 @@ export function Footer() {
             <li>
               Email:{" "}
               {contact.email ? (
-                <a href={`mailto:${contact.email}`} className="hover:text-ink">
+                <a href={`mailto:${contact.email}`} className="[overflow-wrap:anywhere] hover:text-ink">
                   {contact.email}
                 </a>
               ) : (

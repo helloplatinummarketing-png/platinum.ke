@@ -41,11 +41,19 @@ test("honesty fixes are in place", () => {
   expect(allText).not.toContain("Most rebook on the spot");
 });
 
-test("no invented testimonials, stats or UK contact details", () => {
+test("no invented testimonials or stats, and no UK-trades copy", () => {
   for (const t of content.socialProof.testimonials) expect(t.quote).toBeNull();
   for (const s of content.socialProof.stats) expect(s.value).toBeNull();
-  expect(allText).not.toContain("07594217753");
-  expect(allText).not.toMatch(/Bristol|\bUK\b/);
+  expect(allText).not.toMatch(/Bristol|\bUK trades?\b|plumber|electrician/i);
+});
+
+test("contact details are the previous site's number and email, in a form Kenyan visitors can use", () => {
+  // Austin's decision (23 Nov 2026): reuse the previous site's number, email and domain.
+  expect(content.contact.phoneDisplay).toBe("+44 7594 217753");
+  expect(content.contact.phoneDigits).toBe("447594217753"); // tel:+447594217753 works from Kenya
+  expect(content.contact.whatsappDigits).toBe("447594217753"); // wa.me needs the country code, no "+" or 0
+  expect(content.contact.email).toBe("helloplatinummarketing@gmail.com");
+  expect(content.site.url).toBe("https://www.platinummarketingagency.co.uk");
 });
 
 test("every page has a title and description", () => {

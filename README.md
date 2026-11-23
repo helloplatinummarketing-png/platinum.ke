@@ -80,7 +80,7 @@ Settings → Environment Variables** online. They are never committed to Git.
 
 | Setting | What it does |
 |---|---|
-| `NEXT_PUBLIC_SITE_URL` | The live address, e.g. `https://platinummarketingagency.co.ke` |
+| `NEXT_PUBLIC_SITE_URL` | The live address, `https://www.platinummarketingagency.co.uk` |
 | `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | Turns on Umami analytics (free plan, no cookies, no banner needed) |
 | `GOOGLE_SHEETS_WEBHOOK_URL` | Form option A: each enquiry becomes a row in a Google Sheet |
 | `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL` | Form option B: each enquiry is emailed to Platinum |
@@ -217,8 +217,9 @@ in the footer ("Photo credits") and on the About page. Details:
 3. **Add the environment variables** (*Settings → Environment Variables*), for Production:
    `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_UMAMI_WEBSITE_ID`, and the form settings from section 4.
 4. **Deploy.** Vercel gives a `…vercel.app` address: check it on a real phone.
-5. **Add the domain** (*Settings → Domains*): `platinummarketingagency.co.ke` (or `.com`),
-   then add the DNS records Vercel shows at your domain registrar.
+5. **Move the domain** (*Settings → Domains*): `www.platinummarketingagency.co.uk` and
+   `platinummarketingagency.co.uk` are on the UK site's project (`v0-platinum-marketing-agency-j98z`).
+   Remove them there, then add them to the Kenya project. The UK site then stays reachable only at its `vercel.app` address.
 6. **After it's live:**
    - In Umami, check the website's domain matches the live address.
    - Test each page on <https://pagespeed.web.dev> (mobile).
@@ -226,7 +227,7 @@ in the footer ("Photo credits") and on the About page. Details:
    - Send a test enquiry through the form and check it arrives.
    - Submit `https://<domain>/sitemap.xml` in Google Search Console.
 
-The UK site (`platinummarketingagency.co.uk`) is a separate Vercel project and is not affected.
+The UK site is a separate Vercel project. Its code and deployments are not changed; only the domain moves.
 
 ---
 

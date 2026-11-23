@@ -28,10 +28,10 @@ export const site = {
   name: "Platinum Marketing Agency",
   shortName: "Platinum",
   /**
-   * TODO: Victor to confirm .co.ke or .com.
+   * The domain the previous (UK) site used, per Austin (23 Nov 2026).
    * Set NEXT_PUBLIC_SITE_URL in .env.local / Vercel to override.
    */
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://platinummarketingagency.co.ke",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.platinummarketingagency.co.uk",
   locale: "en_KE",
   tagline: "More Customers. Less Stress. All Automated.",
   taglineAlt: "We Bring You Customers While You Run Your Business.",
@@ -43,11 +43,14 @@ export const site = {
 } as const;
 
 export const contact: Contact = {
-  phoneDisplay: null, // TODO: Kenya phone number (do NOT reuse the UK number)
-  phoneDigits: null, // TODO: same number, digits only, e.g. 2547XXXXXXXX
-  whatsappDigits: null, // TODO: Platinum WhatsApp Business number, digits only
+  // The previous site's number and email, per Austin (23 Nov 2026).
+  // It's a UK number, shown in international form so Kenyan visitors can call/WhatsApp it.
+  // TODO: confirm this number is on WhatsApp (the WhatsApp buttons use it).
+  phoneDisplay: "+44 7594 217753",
+  phoneDigits: "447594217753",
+  whatsappDigits: "447594217753",
   whatsappMessage: "Hi Platinum, I'd like my free AI Visibility Check.",
-  email: null, // TODO: Kenya email address
+  email: "helloplatinummarketing@gmail.com",
   bookingUrl: null, // TODO: Victor to provide Calendly / Cal.com link
   location: "Nairobi, Kenya",
   locationNote: "No physical office. We work remotely across Kenya.",
@@ -790,11 +793,8 @@ export const pricingPage = {
 /* ------------------------------------------------------------------ */
 
 export const todos = [
-  "Domain: .co.ke or .com",
   "Brand colours, fonts and final logo",
-  "Kenya phone number",
-  "WhatsApp Business number",
-  "Email address",
+  "Confirm +44 7594 217753 is on WhatsApp (the WhatsApp buttons use it)",
   "Calendly / Cal.com booking link",
   "WhatsApp tool cost (Meta changed pricing in Oct 2026)",
   "Confirm WhatsApp coexistence (keeping an existing number) in Kenya",

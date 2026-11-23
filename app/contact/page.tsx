@@ -83,7 +83,7 @@ export default function ContactPage() {
                 <div>
                   <dt className="text-sm text-muted">Email</dt>
                   <dd>
-                    {contact.email ? <a href={`mailto:${contact.email}`}>{contact.email}</a> : <ToCome />}
+                    {contact.email ? <a href={`mailto:${contact.email}`} className="[overflow-wrap:anywhere]">{contact.email}</a> : <ToCome />}
                   </dd>
                 </div>
                 <div>
