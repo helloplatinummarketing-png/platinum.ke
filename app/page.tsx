@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <>
       <JsonLd data={websiteSchema()} />
-      {/* The Nairobi photo story. Layer 1 (no JS) now; Layers 2 and 3 in change-order steps 3-4. */}
+      {/* The Nairobi photo story (Layers 1-3: components/story/PhotoStory.tsx) */}
       <PhotoStory />
       <Services />
       <SocialProof />

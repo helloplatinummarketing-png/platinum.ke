@@ -22,13 +22,13 @@ test("every price appears in the brief exactly as written", () => {
   }
 });
 
-test("there are 3 tiers per product, 7 automations, 6 AI items, 4 team members, 3 values, 7 story stops", () => {
+test("there are 3 tiers per product, 7 automations, 6 AI items, 4 team members, 3 values, 7 story chapters", () => {
   for (const table of Object.values(content.pricing)) expect(table.tiers).toHaveLength(3);
   expect(content.whatsappPage.automations).toHaveLength(7);
   expect(content.aiPage.whatWeDo).toHaveLength(6);
   expect(content.aboutPage.team).toHaveLength(4);
   expect(content.aboutPage.values).toHaveLength(3);
-  expect(content.story.map((s) => s.id)).toEqual(["hero", "problem", "ai", "website", "whatsapp", "how", "cta"]);
+  expect(content.photoStory).toHaveLength(7); // details in story-content.spec.ts
 });
 
 test("honesty fixes are in place", () => {

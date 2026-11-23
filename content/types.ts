@@ -93,24 +93,3 @@ export type StoryChapter = {
   badges?: string[];
   photo: PhotoKey;
 };
-
-/** One stop in the home-page phone story (RETIRED: replaced by StoryChapter). */
-export type StoryStop = {
-  id: "hero" | "problem" | "ai" | "website" | "whatsapp" | "how" | "cta";
-  kicker: string;
-  heading: string;
-  body?: string;
-  bullets?: { title?: string; text: string }[];
-  ctas?: Link[];
-  /** Short alt text for the picture of this phone screen. */
-  screenAlt: string;
-  /** Text drawn on the phone screen. Keys depend on the stop (see screens). */
-  screen: Record<string, string | string[]>;
-  /**
-   * Text on the 3D cards that pop out of the phone at this stop.
-   * `bullet`: which bullet (0 = first) the card illustrates. The card flies
-   * towards that bullet and the bullet lights up. Leave it out for cards
-   * that belong to the stop as a whole.
-   */
-  popCards: { title: string; sub?: string; bullet?: number }[];
-};

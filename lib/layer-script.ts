@@ -2,9 +2,9 @@
  * Runs in <head> BEFORE the page is drawn, and picks the home-page story layer
  * by adding classes to <html>:
  *
- *   (no class)         Layer 1: no JavaScript (incl. Opera Mini). Plain stacked sections.
- *   "story-flat"       Layer 2: flat CSS phone that swaps screens on scroll.
- *   "story-flat can-3d" capable device: Layer 3 (3D phone, build step 5) may take over.
+ *   (no class)          Layer 1: no JavaScript (incl. Opera Mini). Chapters stack, photo above copy.
+ *   "story-flat"        Layer 2: pinned photo story, CSS cross-fades, bullets lit in turn, still tower.
+ *   "story-flat can-3d" capable device: Layer 3 (the 3D light layer) takes over on first interaction.
  *
  * Layer 2 only (never 3D) for: no WebGL, software-only WebGL (no graphics
  * chip, e.g. SwiftShader: far too slow for 3D), reduced motion, low memory
