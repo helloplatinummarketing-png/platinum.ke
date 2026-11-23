@@ -7,8 +7,8 @@
  *   `npm run screens`).
  * LAYER 2 (html.story-flat): the per-stop pictures hide; one flat phone
  *   (FlatPhone) stays in view and swaps screens as you scroll.
- * LAYER 3 (html.can-3d): a full-screen 3D phone (Story3D) stays in view behind
- *   the text; the text scrolls over it (left on desktop, bottom card on phones).
+ * LAYER 3 (html.can-3d): the same column holds a 3D phone (Story3D) instead.
+ *   Its cards fly towards the bullet they illustrate, and that bullet lights up.
  */
 import Image, { getImageProps } from "next/image";
 import { site, story } from "@/content/site";
@@ -57,8 +57,6 @@ export function StoryStops() {
 
   return (
     <div id="story" className="story border-b border-line">
-      {/* Layer 3 stage (hidden unless html.can-3d) */}
-      <Story3D screens={screens3d} exampleLabel={site.exampleLabel} poster={flatScreens[0].img} />
       <div className="story-grid container-page">
         <div className="story-stops">
           {story.map((stop, i) => {
@@ -90,7 +88,7 @@ export function StoryStops() {
                     {stop.bullets && (
                       <ul className="mt-6 space-y-4">
                         {stop.bullets.map((b, n) => (
-                          <li key={b.text} className="flex gap-3">
+                          <li key={b.text} data-bullet={n} className="story-bullet flex gap-3">
                             {numbered ? (
                               <span className="grid size-8 shrink-0 place-items-center rounded-full bg-accent/15 font-extrabold text-accent">
                                 {n + 1}
@@ -132,9 +130,10 @@ export function StoryStops() {
           })}
         </div>
 
-        {/* Layer 2 phone (hidden in Layer 1) */}
+        {/* Phone column (hidden in Layer 1): flat phone (Layer 2) or 3D phone (Layer 3) */}
         <div className="story-phone-slot">
           <FlatPhone screens={flatScreens} />
+          <Story3D screens={screens3d} exampleLabel={site.exampleLabel} poster={flatScreens[0].img} />
         </div>
       </div>
     </div>

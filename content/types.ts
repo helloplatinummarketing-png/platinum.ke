@@ -62,6 +62,11 @@ export type StoryStop = {
   screenAlt: string;
   /** Text drawn on the phone screen. Keys depend on the stop (see screens). */
   screen: Record<string, string | string[]>;
-  /** Text on the 3D cards that pop out of the phone at this stop. */
-  popCards: { title: string; sub?: string }[];
+  /**
+   * Text on the 3D cards that pop out of the phone at this stop.
+   * `bullet`: which bullet (0 = first) the card illustrates. The card flies
+   * towards that bullet and the bullet lights up. Leave it out for cards
+   * that belong to the stop as a whole.
+   */
+  popCards: { title: string; sub?: string; bullet?: number }[];
 };

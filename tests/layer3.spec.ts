@@ -9,8 +9,10 @@ const stops = ["hero", "problem", "ai", "website", "whatsapp", "how", "cta"];
 async function scrollToStop(page: Page, id: string, at = 0.5) {
   await page.locator(`#stop-${id}`).evaluate((el, at) => {
     const r = el.getBoundingClientRect();
-    // put a point `at` of the way through the stop on the 55% line the 3D reads
-    window.scrollBy(0, r.top + r.height * at - window.innerHeight * 0.55);
+    // put a point `at` of the way through the stop on the line the 3D reads
+    // (55% down on desktop, 72% on phones, below the phone)
+    const line = window.innerWidth < 768 ? 0.72 : 0.55;
+    window.scrollBy(0, r.top + r.height * at - window.innerHeight * line);
   }, at);
 }
 
@@ -41,7 +43,7 @@ test("on the home page, three.js arrives only after the page has loaded", async 
   });
   await page.goto("/?layer=3");
   await expect(page.locator("html")).toHaveClass(/story-3d-on/, { timeout: 20_000 });
-  expect(seen.length, "three.js file downloaded").toBeGreaterThan(0);
+  await expect.poll(() => seen.length, { message: "three.js file downloaded" }).toBeGreaterThan(0);
   expect(seen.every((s) => s.afterLoad), "three.js downloaded before the page finished loading").toBe(true);
 });
 
@@ -83,6 +85,28 @@ test("3D waits for the visitor's first scroll or touch; a still phone shows unti
   await page.mouse.wheel(0, 300); // first scroll
   await expect(page.locator("html")).toHaveClass(/story-3d-on/, { timeout: 20_000 });
   await expect.poll(() => threeLoaded).toBe(true);
+});
+
+test("the 3D phone sits beside the text, and bullets light up as their cards arrive", async ({ page }) => {
+  await page.goto("/?layer=3");
+  await expect(page.locator("html")).toHaveClass(/story-3d-on/, { timeout: 20_000 });
+
+  // The phone is in its own column, not behind the text
+  const stage = await page.locator(".story-3d-stage").boundingBox();
+  const text = await page.locator("#stop-problem h2").boundingBox();
+  const vw = page.viewportSize()!.width;
+  if (vw >= 768) expect(stage!.x, "phone column is to the right of the text").toBeGreaterThanOrEqual(text!.x + text!.width - 1);
+  else expect(stage!.width, "phone fills the column on phones").toBeGreaterThan(vw * 0.8);
+
+  // Problem stop: each bullet lights up when its card arrives
+  await scrollToStop(page, "problem", 0.55);
+  await expect(page.locator('#stop-problem [data-bullet="0"]')).toHaveClass(/is-lit/, { timeout: 10_000 });
+  await expect(page.locator('#stop-problem [data-bullet="2"]')).toHaveClass(/is-lit/, { timeout: 10_000 });
+
+  // AI stop has no bullets: the whole text block lights up
+  await scrollToStop(page, "ai", 0.6);
+  await expect(page.locator("#stop-ai")).toHaveClass(/is-lit/, { timeout: 10_000 });
+  await expect(page.locator("#stop-problem .is-lit")).toHaveCount(0);
 });
 
 test("rendering pauses when the story is off-screen", async ({ page }) => {

@@ -199,21 +199,45 @@ h3 {
 }
 
 /* ---------------- LAYER 3: 3D phone (html.can-3d) ---------------- */
+/* Same layout as Layer 2: text on the left, phone column on the right     */
+/* (phone above the text on phones). The 3D phone lives in that column.    */
 .story-3d-stage {
   display: none;
 }
 .can-3d .story-3d-stage {
   display: block;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100svh;
-  margin-bottom: -100vh;
-  margin-bottom: -100svh;
-  z-index: 0;
-  background: var(--bg);
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.can-3d .stop-picture {
+  display: none;
+}
+/* Phones: the column sticks under the header, a little taller than the flat phone */
+.can-3d .story-phone-slot {
+  min-height: 0;
+  height: min(46svh, 380px);
+  padding: 0;
+}
+/* Desktop: a wider phone column; the 3D stage stays in view while the text scrolls */
+@media (min-width: 768px) {
+  .can-3d .story-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 46%);
+    gap: 2rem;
+  }
+  .can-3d .story-phone-slot {
+    height: auto;
+  }
+  .can-3d .story-3d-stage {
+    position: sticky;
+    top: 64px;
+    height: calc(100vh - 64px);
+    height: calc(100svh - 64px);
+  }
 }
 .story-3d-stage canvas {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
@@ -223,72 +247,86 @@ h3 {
 .story-3d-on .story-3d-stage canvas {
   opacity: 1;
 }
-/* Still phone shown until the 3D phone takes over (same spot as the 3D phone) */
+/* Still phone shown until the 3D phone takes over */
 .story-3d-poster {
   position: absolute;
   inset: 0;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding-top: 92px;
   pointer-events: none;
   transition: opacity 0.5s ease;
 }
 .story-3d-on .story-3d-poster {
   opacity: 0;
 }
-@media (min-width: 768px) {
-  .story-3d-poster {
-    align-items: center;
-    justify-content: flex-start;
-    padding: 0 0 0 calc(50% + 13vw);
-  }
+
+/* The stop's colour glows softly behind the phone (set by the 3D scene) */
+.can-3d #story {
+  background: radial-gradient(
+    55% 45% at 72% 50%,
+    color-mix(in srgb, var(--story-tint, transparent) 38%, transparent),
+    transparent 75%
+  );
+  background-attachment: fixed;
 }
-.can-3d .story-phone-slot,
-.can-3d .stop-picture {
-  display: none;
-}
-.can-3d .story-grid {
-  display: block;
-  position: relative;
-  z-index: 1;
-}
-.can-3d .story-stop {
-  min-height: 115vh;
-  min-height: 115svh;
-  display: flex;
-  align-items: center;
-  border-bottom: 0;
-}
-.can-3d .story-stop > div {
-  display: block;
-  max-width: 460px;
-}
-/* Phones: the 3D phone sits in the top half; each stop's text is a card at the bottom */
 @media (max-width: 767px) {
-  .can-3d .story-stop {
-    align-items: flex-end;
-    /* Card sits above the floating WhatsApp button so it never covers a CTA */
-    padding-bottom: calc(84px + 1svh);
+  .can-3d #story {
+    background: radial-gradient(
+      90% 30% at 50% 22%,
+      color-mix(in srgb, var(--story-tint, transparent) 38%, transparent),
+      transparent 75%
+    );
+    background-attachment: fixed;
   }
-  .can-3d .story-stop > div {
-    max-width: none;
-    padding-block: 0;
-  }
-  .can-3d .story-stop > div > div:first-child {
-    background: rgb(8 12 24 / 0.86);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--line);
-    border-radius: 18px;
-    padding: 18px;
-  }
-  .can-3d .story-stop h1 {
-    font-size: 1.9rem;
-  }
-  .can-3d .story-stop h2 {
-    font-size: 1.5rem;
-  }
+}
+
+/* Bullets light up when the card that illustrates them arrives */
+.story-bullet {
+  border-radius: 14px;
+  margin-inline: -10px;
+  padding: 8px 10px;
+  transition:
+    background-color 0.35s ease,
+    box-shadow 0.35s ease,
+    transform 0.35s ease;
+}
+.story-bullet.is-lit {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  box-shadow: inset 3px 0 0 var(--accent);
+  transform: translateX(6px);
+}
+#stop-problem .story-bullet.is-lit {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  box-shadow: inset 3px 0 0 var(--danger);
+}
+#stop-whatsapp .story-bullet.is-lit,
+#stop-how .story-bullet.is-lit {
+  background: color-mix(in srgb, var(--wa) 12%, transparent);
+  box-shadow: inset 3px 0 0 var(--wa);
+}
+/* Stops without bullets (AI, Website): a bar lights up beside the text block */
+.story-stop > div > div:first-child {
+  position: relative;
+}
+.story-stop > div > div:first-child::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--accent);
+  opacity: 0;
+  transform: scaleY(0.4);
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s ease;
+}
+.story-stop.is-lit > div > div:first-child::before {
+  opacity: 1;
+  transform: none;
 }
 
 /* Reusable pieces (kept small; most styling is Tailwind classes) */

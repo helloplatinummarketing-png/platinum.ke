@@ -1,6 +1,9 @@
 "use client";
 
 /**
+ * The 3D phone sits in the phone column beside the text (above it on phones).
+ * Its cards fly towards the bullet points they illustrate, which light up.
+ *
  * Loads the 3D phone story (Layer 3) only when:
  *  - the layer script marked this device as capable (html.can-3d), and
  *  - the visitor first scrolls, touches, moves the mouse or presses a key,
@@ -53,7 +56,24 @@ export function Story3D({
         const canvas = canvasRef.current;
         if (cancelled || !canvas) return;
         const stops = Array.from(document.querySelectorAll<HTMLElement>("[data-stop]"));
-        handle = startStory3D({ canvas, stops, screens, exampleLabel });
+        const story = document.getElementById("story");
+        handle = startStory3D({
+          canvas,
+          stops,
+          screens,
+          exampleLabel,
+          // Light up the bullet(s) the cards are pointing at (-1 = the whole stop)
+          onLit: (stop, bullets) => {
+            document.querySelectorAll(".is-lit").forEach((el) => el.classList.remove("is-lit"));
+            if (stop < 0) return;
+            for (const b of bullets) {
+              const el = b < 0 ? stops[stop] : stops[stop].querySelector(`[data-bullet="${b}"]`);
+              el?.classList.add("is-lit");
+            }
+          },
+          // The stop's colour glows behind the phone
+          onTint: (color) => story?.style.setProperty("--story-tint", color),
+        });
         root.classList.add("story-3d-on");
         canvas.addEventListener("webglcontextlost", fallBack, { once: true });
       } catch {

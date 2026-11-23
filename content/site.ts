@@ -185,9 +185,9 @@ export const story: StoryStop[] = [
       aiAnswer: 'AI: "Try Other Clinic, open now."',
     },
     popCards: [
-      { title: "Missed call", sub: "Nobody answered" },
-      { title: "No website found", sub: "Customer gave up" },
-      { title: 'AI: "Try Other Clinic"', sub: "Your competitor wins" },
+      { title: "No website found", sub: "Customer gave up", bullet: 0 },
+      { title: "Missed call", sub: "Nobody answered", bullet: 1 },
+      { title: 'AI: "Try Other Clinic"', sub: "Your competitor wins", bullet: 2 },
     ],
   },
   {
@@ -257,11 +257,11 @@ export const story: StoryStop[] = [
       payButton: "Pay now",
     },
     popCards: [
-      { title: "Missed call · 10:02" },
-      { title: "Hi! Sorry we missed your call.", sub: "How can we help?" },
-      { title: "✓ Booked: Sat 10am", sub: "Reminder 2 hrs before" },
-      { title: "★★★★★  New review" },
-      { title: "M-PESA", sub: "Pay KSh 2,500 (example)" },
+      { title: "Missed call · 10:02", bullet: 0 },
+      { title: "Hi! Sorry we missed your call.", sub: "How can we help?", bullet: 0 },
+      { title: "✓ Booked: Sat 10am", sub: "Reminder 2 hrs before", bullet: 1 },
+      { title: "★★★★★  New review", bullet: 2 },
+      { title: "M-PESA", sub: "Pay KSh 2,500 (example)", bullet: 3 },
     ],
   },
   {
@@ -292,9 +292,9 @@ export const story: StoryStop[] = [
       ],
     },
     popCards: [
-      { title: "1  We audit", sub: "Free AI check" },
-      { title: "2  We build", sub: "Site · WhatsApp · AI" },
-      { title: "3  You grow", sub: "More customers" },
+      { title: "1  We audit", sub: "Free AI check", bullet: 0 },
+      { title: "2  We build", sub: "Site · WhatsApp · AI", bullet: 1 },
+      { title: "3  You grow", sub: "More customers", bullet: 2 },
     ],
   },
   {
