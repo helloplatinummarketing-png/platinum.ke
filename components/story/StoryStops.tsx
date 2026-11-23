@@ -7,13 +7,15 @@
  *   `npm run screens`).
  * LAYER 2 (html.story-flat): the per-stop pictures hide; one flat phone
  *   (FlatPhone) stays in view and swaps screens as you scroll.
- * LAYER 3 (html.can-3d): the 3D phone, added in build step 5.
+ * LAYER 3 (html.can-3d): a full-screen 3D phone (Story3D) stays in view behind
+ *   the text; the text scrolls over it (left on desktop, bottom card on phones).
  */
 import Image, { getImageProps } from "next/image";
-import { story } from "@/content/site";
+import { site, story } from "@/content/site";
 import { CtaButton } from "@/components/blocks";
 import { Icon } from "@/components/Icon";
 import { FlatPhone, type FlatScreen } from "./FlatPhone";
+import { Story3D } from "./Story3D";
 
 /** Picture size made by scripts/render-screens.mts */
 export const SCREEN_PICTURE = { width: 405, height: 840 };
@@ -50,8 +52,13 @@ export function StoryStops() {
     };
   });
 
+  // Text for the 3D phone's screens and pop-out cards (Layer 3)
+  const screens3d = story.map((s) => ({ id: s.id, screen: s.screen, popCards: s.popCards }));
+
   return (
     <div id="story" className="story border-b border-line">
+      {/* Layer 3 stage (hidden unless html.can-3d) */}
+      <Story3D screens={screens3d} exampleLabel={site.exampleLabel} poster={flatScreens[0].img} />
       <div className="story-grid container-page">
         <div className="story-stops">
           {story.map((stop, i) => {

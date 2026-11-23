@@ -198,6 +198,99 @@ h3 {
   }
 }
 
+/* ---------------- LAYER 3: 3D phone (html.can-3d) ---------------- */
+.story-3d-stage {
+  display: none;
+}
+.can-3d .story-3d-stage {
+  display: block;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  margin-bottom: -100vh;
+  margin-bottom: -100svh;
+  z-index: 0;
+  background: var(--bg);
+}
+.story-3d-stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.story-3d-on .story-3d-stage canvas {
+  opacity: 1;
+}
+/* Still phone shown until the 3D phone takes over (same spot as the 3D phone) */
+.story-3d-poster {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 92px;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+.story-3d-on .story-3d-poster {
+  opacity: 0;
+}
+@media (min-width: 768px) {
+  .story-3d-poster {
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 0 0 calc(50% + 13vw);
+  }
+}
+.can-3d .story-phone-slot,
+.can-3d .stop-picture {
+  display: none;
+}
+.can-3d .story-grid {
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+.can-3d .story-stop {
+  min-height: 115vh;
+  min-height: 115svh;
+  display: flex;
+  align-items: center;
+  border-bottom: 0;
+}
+.can-3d .story-stop > div {
+  display: block;
+  max-width: 460px;
+}
+/* Phones: the 3D phone sits in the top half; each stop's text is a card at the bottom */
+@media (max-width: 767px) {
+  .can-3d .story-stop {
+    align-items: flex-end;
+    /* Card sits above the floating WhatsApp button so it never covers a CTA */
+    padding-bottom: calc(84px + 1svh);
+  }
+  .can-3d .story-stop > div {
+    max-width: none;
+    padding-block: 0;
+  }
+  .can-3d .story-stop > div > div:first-child {
+    background: rgb(8 12 24 / 0.86);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 18px;
+  }
+  .can-3d .story-stop h1 {
+    font-size: 1.9rem;
+  }
+  .can-3d .story-stop h2 {
+    font-size: 1.5rem;
+  }
+}
+
 /* Reusable pieces (kept small; most styling is Tailwind classes) */
 @layer components {
   .container-page {

@@ -6,7 +6,8 @@
  *   "story-flat"       Layer 2: flat CSS phone that swaps screens on scroll.
  *   "story-flat can-3d" capable device: Layer 3 (3D phone, build step 5) may take over.
  *
- * Layer 2 only (never 3D) for: no WebGL, reduced motion, low memory
+ * Layer 2 only (never 3D) for: no WebGL, software-only WebGL (no graphics
+ * chip, e.g. SwiftShader: far too slow for 3D), reduced motion, low memory
  * (deviceMemory < 4), Save-Data, Opera Mini, WhatsApp / Facebook / Instagram
  * in-app browsers. Also adds "reduced-motion" when the user asked for less motion.
  *
@@ -26,5 +27,9 @@ var inApp=/FBAN|FBAV|FB_IAB|FBIOS|Instagram|WhatsApp/i.test(ua);
 var lowMem=n.deviceMemory&&n.deviceMemory<4;
 if(force!=="3"&&(rm||c.saveData||lowMem||operaMini||inApp))return;
 var cv=document.createElement("canvas"),gl=cv.getContext("webgl")||cv.getContext("experimental-webgl");
-if(gl){var ext=gl.getExtension("WEBGL_lose_context");if(ext)ext.loseContext();d.classList.add("can-3d");}
+if(gl){
+var dbg=gl.getExtension("WEBGL_debug_renderer_info"),rn=dbg?String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)):"";
+var soft=/swiftshader|llvmpipe|softpipe|software|basic render/i.test(rn);
+var ext=gl.getExtension("WEBGL_lose_context");if(ext)ext.loseContext();
+if(force==="3"||!soft)d.classList.add("can-3d");}
 }catch(e){}})();`;

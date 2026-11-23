@@ -22,12 +22,15 @@ export function FlatPhone({ screens }: { screens: FlatScreen[] }) {
   const frame = useRef<HTMLDivElement>(null);
   const first = useRef(true);
 
-  // Turn on, and follow which stop is in the middle of the screen
+  // Turn on (unless the 3D phone is taking over), and follow which stop is in the middle of the screen
   useEffect(() => {
     const root = document.documentElement;
     if (!root.classList.contains("story-flat")) return;
+    // If the 3D phone fails to load, step back in
+    const onFail = () => setOn(true);
+    window.addEventListener("story3d-failed", onFail);
     // Wait one frame before switching on, so React isn't updating during the first render
-    requestAnimationFrame(() => setOn(true));
+    if (!root.classList.contains("can-3d")) requestAnimationFrame(() => setOn(true));
     const stops = Array.from(document.querySelectorAll<HTMLElement>("[data-stop]"));
     const io = new IntersectionObserver(
       (entries) => {
@@ -42,7 +45,10 @@ export function FlatPhone({ screens }: { screens: FlatScreen[] }) {
       { rootMargin: "-60% 0px -40% 0px" },
     );
     stops.forEach((s) => io.observe(s));
-    return () => io.disconnect();
+    return () => {
+      io.disconnect();
+      window.removeEventListener("story3d-failed", onFail);
+    };
   }, []);
 
   // A small tilt each time the screen changes (skipped for reduced motion)

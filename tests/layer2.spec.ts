@@ -82,15 +82,15 @@ test.describe("flat phone", () => {
     }
 
     // The active screen is visible, and every visited screen was downloaded
-    await expect(page.locator('.flat-screen.is-active[data-screen="cta"]')).toBeVisible();
-    expect(await page.locator(".flat-screen").count()).toBe(7);
+    await expect(page.locator('.flat-phone .flat-screen.is-active[data-screen="cta"]')).toBeVisible();
+    expect(await page.locator(".flat-phone .flat-screen").count()).toBe(7);
   });
 
   test("only downloads screens as they are needed", async ({ page }) => {
     await page.goto("/?layer=2");
     await expect(page.locator(".flat-phone")).toBeVisible();
     // At the top: hero + the next one only
-    expect(await page.locator(".flat-screen").count()).toBe(2);
+    expect(await page.locator(".flat-phone .flat-screen").count()).toBe(2);
   });
 
   test("no sideways scrolling and the text stays readable", async ({ page }) => {
