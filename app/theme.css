@@ -20,6 +20,8 @@
   /* Brand (placeholders) */
   --platinum: #d9dde3;    /* silver, phone + logo tile */
   --accent: #7cc4ff;      /* light blue accent */
+  --amber: #ffb547;       /* warm city-light accent (home story, placeholder) */
+  --amber-ink: #2a1800;   /* text on amber buttons */
 
   /* Actions */
   --wa: #25d366;          /* WhatsApp green: main buttons */

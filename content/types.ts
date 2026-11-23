@@ -50,7 +50,51 @@ export type Contact = {
   mapQuery: string;
 };
 
-/** One stop in the home-page phone story. */
+/* ---------------- Home page: the Nairobi photo story ---------------- */
+
+/** The six Nairobi photos (public/images/nairobi/<key>.webp and <key>-m.webp). */
+export type PhotoKey = "nw" | "problem" | "aerial" | "trails" | "dusk" | "kicc";
+
+export type Photo = {
+  alt: string;
+  /** Size of the mobile version (-m.webp). The desktop version is 2000px wide, same shape. */
+  width: number;
+  height: number;
+  desktopHeight: number;
+  photographer: string;
+  sourceUrl: `https://${string}`;
+};
+
+/** A card or label drawn in the light layer, one per step (or one per chapter). */
+export type StoryVisual = { title: string; sub?: string };
+
+export type StoryChapter = {
+  id: "hero" | "problem" | "websites" | "whatsapp" | "ai" | "how" | "cta";
+  /** "01" … "06"; the hero has none. */
+  number?: string;
+  kicker: string;
+  heading: string;
+  /** Part of the heading shown in the accent colour (must be inside `heading`). */
+  headingAccent?: string;
+  body?: string;
+  /** Short line above the steps, e.g. "Watch it go up, floor by floor:" */
+  intro?: string;
+  /** Bullets that light up one at a time as you scroll. */
+  steps?: { title?: string; text: string }[];
+  /** "chips" shows the steps as small pills (AI chapter). */
+  stepStyle?: "list" | "chips";
+  /** One visual per step, in the same order (the test checks the counts match). */
+  visuals?: StoryVisual[];
+  /** AI chapter: the question types itself out, then the answer appears. */
+  chat?: { question: string; answer: { before: string; strong: string; after: string } };
+  /** Small price line, e.g. "Starter website · KSh 80,000". */
+  priceStrip?: { label: string; price: string };
+  ctas?: Link[];
+  badges?: string[];
+  photo: PhotoKey;
+};
+
+/** One stop in the home-page phone story (RETIRED: replaced by StoryChapter). */
 export type StoryStop = {
   id: "hero" | "problem" | "ai" | "website" | "whatsapp" | "how" | "cta";
   kicker: string;

@@ -11,6 +11,8 @@
   --color-muted: var(--muted);
   --color-platinum: var(--platinum);
   --color-accent: var(--accent);
+  --color-amber: var(--amber);
+  --color-amber-ink: var(--amber-ink);
   --color-wa: var(--wa);
   --color-wa-ink: var(--wa-ink);
   --color-danger: var(--danger);

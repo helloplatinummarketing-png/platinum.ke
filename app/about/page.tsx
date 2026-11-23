@@ -1,7 +1,9 @@
 import Image from "next/image";
 import { FinalCta, Section, SectionHeading } from "@/components/blocks";
 import { ToCome } from "@/components/ToCome";
-import { aboutPage as p } from "@/content/site";
+import { PhotoCredit } from "@/components/story/PhotoCredit";
+import { aboutPage as p, photoNotes, photos } from "@/content/site";
+import type { PhotoKey } from "@/content/types";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata("about");
@@ -55,6 +57,22 @@ export default function AboutPage() {
             </li>
           ))}
         </ul>
+      </Section>
+
+      {/* Photo credits for the home-page story (content/site.ts → photos) */}
+      <Section id="photo-credits" labelledBy="credits-title" className="border-t border-line">
+        <h2 id="credits-title" className="text-xl font-extrabold">
+          {photoNotes.creditsHeading}
+        </h2>
+        <p className="mt-2 text-sm text-muted">{photoNotes.creditsIntro}</p>
+        <ul className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
+          {(Object.keys(photos) as PhotoKey[]).map((k) => (
+            <li key={k}>
+              {photos[k].alt}: <PhotoCredit photo={k} className="text-muted" />
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-xs text-muted">{photoNotes.illustration}.</p>
       </Section>
 
       <FinalCta {...p.finalCta} />

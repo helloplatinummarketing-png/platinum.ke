@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Platinum Marketing Agency · Your Business Lights Up (Draft)</title>
+<meta name="description" content="Websites, WhatsApp automations and AI visibility for Kenyan service businesses. Draft demo.">
+<script>
+(function(){try{var c=document.createElement('canvas'),gl=c.getContext('webgl')||c.getContext('experimental-webgl');
+var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches,mem=navigator.deviceMemory,sd=navigator.connection&&navigator.connection.saveData;
+if(gl&&!rm&&!(mem&&mem<4)&&!sd)document.documentElement.classList.add('has3d');}catch(e){}})();
+</script>
+<style>
+/* THEME: placeholders. Platinum brand colours and fonts are not decided yet */
+:root{--bg:#050913;--panel:rgba(7,12,26,.78);--ink:#f2f4f8;--muted:#9fa8bb;--amber:#ffb547;--wa:#25D366;--sky:#7cc4ff;
+--font:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.5}a{color:inherit}
+.draft{background:#ffd54a;color:#222;font-size:13px;padding:6px 12px;text-align:center}
+.bar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:12px 5vw;background:rgba(5,9,19,.85);backdrop-filter:blur(8px)}
+.has3d .bar{position:relative}
+.logo{font-weight:800;letter-spacing:.14em;font-size:15px}.logo small{display:block;font-weight:500;letter-spacing:.02em;font-size:10px;color:var(--muted)}
+nav a{font-size:14px;color:var(--muted);text-decoration:none;margin:0 10px}@media(max-width:760px){nav{display:none}}
+.btn{display:inline-block;background:var(--wa);color:#04210f;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px;font-size:15px;border:0}
+.btn.amber{background:var(--amber);color:#2a1800}.btn.ghost{background:transparent;color:var(--ink);border:1px solid rgba(255,255,255,.3)}
+.bar .btn{padding:8px 14px;font-size:13px}
+/* loader */
+#loader{display:none}
+.has3d #loader{display:flex;position:fixed;inset:0;z-index:50;background:#03060d;flex-direction:column;align-items:center;justify-content:center;gap:10px;transition:opacity .7s}
+#loader b{font-size:56px;font-weight:800;color:var(--amber);font-variant-numeric:tabular-nums}#loader span{color:var(--muted);letter-spacing:.12em;text-transform:uppercase;font-size:12px}
+#loader.done{opacity:0;pointer-events:none}
+/* journey */
+.journey{position:relative}.has3d .journey{height:1000vh}
+.pin{position:relative}.has3d .pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+#city{display:none}.has3d #city{display:block;position:absolute;inset:0;width:100%;height:100%}
+.panel{padding:48px 6vw}
+.has3d .panel{position:absolute;left:5vw;top:50%;width:min(460px,40vw);transform:translateY(-42%);opacity:0;transition:opacity .5s,transform .5s;pointer-events:none;padding:26px 26px 22px;background:var(--panel);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08);border-radius:22px}
+.has3d .panel.hero{background:transparent;border:0;backdrop-filter:none;padding:0}
+.has3d .panel.show{opacity:1;transform:translateY(-50%);pointer-events:auto}
+.chap{display:flex;align-items:baseline;gap:12px}.chap em{font-style:normal;font-size:44px;font-weight:800;color:var(--amber);line-height:1}
+.kicker{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--sky);font-weight:700}
+h1,h2{line-height:1.1;margin:.3em 0 .4em}h1{font-size:clamp(34px,5.2vw,62px)}h2{font-size:clamp(24px,3.2vw,38px)}
+h1 span{color:var(--amber)}
+.panel p{color:var(--muted);font-size:16px;margin:.3em 0 .9em}
+.panel ul{list-style:none;padding:0;margin:0 0 .8em}.panel li{margin:.45em 0;padding-left:26px;position:relative;font-size:15px}
+.panel li:before{content:"";position:absolute;left:0;top:.45em;width:12px;height:12px;border-radius:50%;background:var(--amber)}
+.problem li:before{background:#ff6b6b}.wa li:before{background:var(--wa)}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.badges span{font-size:12px;border:1px solid rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;color:var(--muted)}
+.mini{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.05);border-radius:14px;padding:10px 14px;margin-top:6px;font-size:14px}.mini b{color:var(--amber)}
+.cta-row{display:flex;gap:10px;flex-wrap:wrap}
+.rail{display:none}.has3d .rail{display:flex;position:absolute;right:16px;top:50%;transform:translateY(-50%);flex-direction:column;gap:10px;z-index:5;font-size:11px;color:var(--muted)}
+.rail i{font-style:normal;opacity:.4}.rail i.on{opacity:1;color:var(--amber);font-weight:800}
+.hint{display:none}.has3d .hint{display:block;position:absolute;bottom:18px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase}
+.tag{display:none}.has3d .tag{display:block;position:absolute;left:12px;bottom:10px;font-size:10px;color:rgba(255,255,255,.35)}
+@media(max-width:760px){
+ .has3d .panel{left:4vw;right:4vw;width:auto;top:auto;bottom:3vh;transform:translateY(20px);padding:16px 16px 12px}
+ .has3d .panel.hero{background:var(--panel);border:1px solid rgba(255,255,255,.08);padding:16px}
+ .has3d .panel.show{transform:none}.panel p{font-size:14px}.panel li{font-size:14px;margin:.3em 0}
+ h1{font-size:30px}h2{font-size:22px}.chap em{font-size:32px}.has3d .rail{right:6px;top:22%}.has3d .hint{display:none}
+}
+section.block{padding:72px 6vw;max-width:1100px;margin:0 auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.card{background:#0c1328;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:22px}.card h3{margin:.2em 0}
+.price{font-size:22px;font-weight:800;margin:.4em 0;color:var(--amber)}.card p{color:var(--muted);margin:.3em 0}
+.todo{display:inline-block;background:#3a2f00;color:#ffd54a;font-size:12px;padding:2px 8px;border-radius:6px}
+form{display:grid;gap:10px;max-width:520px}input,select{padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:#0c1328;color:var(--ink);font-size:16px}
+footer{padding:40px 6vw;color:var(--muted);font-size:14px;border-top:1px solid rgba(255,255,255,.08)}
+.wa-float{position:fixed;right:16px;bottom:16px;z-index:30;width:56px;height:56px;border-radius:50%;background:var(--wa);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,.4);text-decoration:none;color:#04210f;font-weight:900;font-size:13px}
+@media(max-width:760px){.has3d .wa-float{bottom:auto;top:70px;width:46px;height:46px}}
+
+/* real photo layers */
+.bgs{display:none}
+.has3d .bgs{display:block;position:absolute;inset:0;overflow:hidden;background:#03060d}
+.bg{position:absolute;inset:-4%;background-size:cover;background-position:center;opacity:0;will-change:opacity,transform}
+.shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,6,13,.85) 0%,rgba(3,6,13,.35) 45%,rgba(3,6,13,.15) 100%),linear-gradient(0deg,rgba(3,6,13,.7),rgba(3,6,13,0) 40%)}
+@media(max-width:760px){.shade{background:linear-gradient(0deg,rgba(3,6,13,.92) 10%,rgba(3,6,13,.2) 60%,rgba(3,6,13,.35) 100%)}}
+.has3d #city{background:transparent}
+.credit{display:none}.has3d .credit{display:block;position:absolute;right:12px;bottom:10px;font-size:10px;color:rgba(255,255,255,.55);z-index:4}
+@media(max-width:760px){.has3d .credit{right:auto;left:12px;top:8px;bottom:auto}}
+.fallback-photo{width:100%;height:auto;border-radius:16px;margin-bottom:16px;display:block}
+.has3d .fallback-photo{display:none}
+
+/* content ↔ animation links */
+.has3d .steps li{opacity:.38;transition:opacity .35s,transform .35s;transform:translateX(0)}
+.has3d .steps li.done{opacity:.8}
+.has3d .steps li.done:before{background:var(--wa)}
+.has3d .steps li.on{opacity:1;transform:translateX(6px)}
+.has3d .steps li.on:before{box-shadow:0 0 0 5px rgba(255,181,71,.25)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chips li{padding:5px 10px 5px 26px!important;border:1px solid rgba(255,255,255,.15);border-radius:999px;margin:0!important;font-size:13px!important}
+.chips li:before{left:9px!important;top:.6em!important;width:9px!important;height:9px!important}
+.chat{margin:.3em 0 .8em}.chat .q{background:#2b6cff;color:#fff;border-radius:16px 16px 4px 16px;padding:8px 12px;margin-left:18%;font-size:15px;min-height:1.6em}
+.chat .a{background:#fff;color:#111;border:3px solid var(--wa);border-radius:16px 16px 16px 4px;padding:8px 12px;margin:8px 18% 0 0;font-size:14px;opacity:0;transform:translateY(8px);transition:.4s}
+.chat .a.show{opacity:1;transform:none}
+.has3d:not(.has3d) .x{}
+.lead{display:none}
+.has3d .lead{display:block;position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;overflow:visible}
+.lead path{fill:none;stroke:var(--amber);stroke-width:2;stroke-dasharray:6 6;opacity:.9}
+.lead circle{fill:var(--amber)}
+@media(max-width:760px){.has3d .lead{display:none}.chat .q{font-size:13px}.chat .a{font-size:13px}.has3d .steps li.on{transform:none}}
+/* clearer photos */
+.has3d .bg{inset:-2%}
+.shade{background:linear-gradient(90deg,rgba(3,6,13,.72) 0%,rgba(3,6,13,.25) 38%,rgba(3,6,13,0) 60%),linear-gradient(0deg,rgba(3,6,13,.45),rgba(3,6,13,0) 25%)!important}
+@media(max-width:760px){.shade{background:linear-gradient(0deg,rgba(3,6,13,.85) 0%,rgba(3,6,13,.35) 40%,rgba(3,6,13,0) 60%)!important}}
+.has3d .panel{background:rgba(7,12,26,.82)}
+</style>
+</head>
+<body>
+<div id="loader"><b id="pct">0%</b><span>Switching on the city lights…</span></div>
+<div class="draft">Draft demo. Brand and logo are placeholders. Photos of Nairobi are real (Unsplash). The glowing tower and light effects are illustrations, not a real client building.</div>
+<header class="bar">
+  <div class="logo">PLATINUM<small>Marketing Agency · logo placeholder</small></div>
+  <nav><a href="#services">Services</a><a href="#pricing">Pricing</a><a href="#contact">Contact</a></nav>
+  <a class="btn" href="#contact">Free AI Check</a>
+</header>
+
+<section class="journey" id="journey">
+ <div class="pin">
+  <div class="bgs" aria-hidden="true"><div class="bg" data-src="nw"></div><div class="bg" data-src="problem"></div><div class="bg" data-src="aerial"></div><div class="bg" data-src="trails"></div><div class="bg" data-src="dusk"></div><div class="bg" data-src="kicc"></div><div class="shade"></div></div>
+  <canvas id="city" aria-hidden="true"></canvas>
+  <div class="credit" id="credit"></div>
+  <svg class="lead" id="lead" aria-hidden="true"><path id="leadPath"/><circle id="leadDot" r="5"/></svg>
+  <div class="rail" aria-hidden="true"><i>00</i><i>01</i><i>02</i><i>03</i><i>04</i><i>05</i><i>06</i></div>
+  <div class="hint">Scroll through Nairobi</div>
+  <div class="tag">Real Nairobi photos · light effects and the glowing tower are illustrations</div>
+
+  <div class="panel hero" data-from="0" data-to="0.08">
+    <img class="fallback-photo" src="img/nw-m.webp" alt="Nairobi skyline at night with KICC reflected in the Uhuru Park lake" loading="lazy" width="820" height="530">
+    <div class="kicker">Websites · WhatsApp · AI visibility</div>
+    <h1>Your Business Deserves <span>More Customers</span></h1>
+    <p>We build websites, automate your WhatsApp, and make sure AI recommends you, so customers find you first.</p>
+    <div class="cta-row"><a class="btn" href="#contact">Get a Free AI Visibility Check</a><a class="btn ghost" href="#services">See Our Services</a></div>
+    <div class="badges"><span>Nairobi based</span><span>Prices in KSh</span><span>No long contracts</span></div>
+  </div>
+
+  <div class="panel problem" data-from="0.11" data-to="0.25">
+    <div class="chap"><em>01</em><div class="kicker">The problem</div></div>
+    <h2>Your Competitors Are Getting the Customers You're Missing</h2>
+    <ul class="steps" data-ch="1"><li>Customers can't find you online</li><li>You're missing calls and enquiries</li><li>AI doesn't know you exist</li></ul>
+  </div>
+
+  <div class="panel" data-from="0.28" data-to="0.41">
+    <div class="chap"><em>02</em><div class="kicker">Websites</div></div>
+    <h2>A website that actually brings you customers</h2>
+    <p>Watch it go up, floor by floor:</p>
+    <ul class="steps" data-ch="2"><li>Mobile-friendly design</li><li>Fast on Kenyan data</li><li>Shows up on Google</li><li>Ready for AI search</li><li>WhatsApp click-to-chat</li><li>Google Maps + contact form</li></ul>
+    <div class="mini"><span>Starter website</span><b>KSh 80,000</b></div>
+  </div>
+
+  <div class="panel wa" data-from="0.45" data-to="0.58">
+    <img class="fallback-photo" src="img/trails-m.webp" alt="Nairobi CBD streets at night with car light trails" loading="lazy" width="820" height="520">
+    <div class="chap"><em>03</em><div class="kicker">WhatsApp automations</div></div>
+    <h2>Never miss a customer again</h2>
+    <ul class="steps" data-ch="3"><li><b>Missed call?</b> A WhatsApp reply in 30 seconds</li><li><b>Appointment reminders</b> that cut no-shows</li><li><b>Review requests</b> after every job</li><li><b>Payment reminders</b> with an M-Pesa link</li></ul>
+    <div class="mini"><span>Starter automations</span><b>KSh 30,000 setup</b></div>
+  </div>
+
+  <div class="panel" data-from="0.62" data-to="0.75">
+    <div class="chap"><em>04</em><div class="kicker">AI visibility (GEO)</div></div>
+    <h2>When customers ask AI, you're the answer</h2>
+    <div class="chat"><div class="q" id="aiQ"></div><div class="a" id="aiA">Top pick: <b>Your Business</b> ★ 4.9, open now, books on WhatsApp.</div></div>
+    <ul class="steps chips" data-ch="4"><li>Google Business Profile</li><li>Directory listings</li><li>Fresh reviews</li><li>FAQ + schema on your site</li></ul>
+    <div class="mini"><span>AI Starter</span><b>KSh 25,000 setup</b></div>
+  </div>
+
+  <div class="panel" data-from="0.78" data-to="0.89">
+    <div class="chap"><em>05</em><div class="kicker">How it works</div></div>
+    <h2>Three steps to the brightest building on the street</h2>
+    <ul class="steps" data-ch="5"><li><b>We audit your business.</b> Free AI visibility check.</li><li><b>We build your systems.</b> Website, WhatsApp, AI.</li><li><b>You get more customers.</b> You focus on your work.</li></ul>
+  </div>
+
+  <div class="panel" data-from="0.93" data-to="1.01">
+    <div class="chap"><em>06</em><div class="kicker">Your turn</div></div>
+    <h2>Ready to Get More Customers?</h2>
+    <p>Book a free 10-minute AI Visibility Check. We'll show you how your business shows up on AI, and what you're missing.</p>
+    <div class="cta-row"><a class="btn amber" href="#contact">Book Your Free Check</a><a class="btn" href="#contact">WhatsApp us</a></div>
+  </div>
+ </div>
+</section>
+
+<section class="block" id="services">
+  <div class="kicker">Services</div><h2>Pick what your business needs</h2>
+  <div class="cards" id="pricing">
+    <div class="card"><h3>Websites</h3><div class="price">from KSh 80,000</div><p>+ from KSh 5,000/month care plan</p><p>Mobile-ready, Google Maps, contact form, SEO.</p></div>
+    <div class="card"><h3>WhatsApp Automations</h3><div class="price">from KSh 30,000 setup</div><p>+ from KSh 15,000/month</p><p>Missed-call WhatsApp-back, instant lead replies, review collection.</p></div>
+    <div class="card"><h3>AI Visibility</h3><div class="price">from KSh 25,000 setup</div><p>+ from KSh 10,000/month</p><p>AI audit, Google Business Profile, directory listings, monthly report.</p></div>
+  </div>
+  <p style="color:var(--muted);font-size:14px;margin-top:14px">Prices from Victor's brief (1 Nov 2026). WhatsApp tool costs are extra. <span class="todo">To come: updated tool-cost figure</span></p>
+</section>
+<section class="block"><div class="kicker">What our clients say</div><h2>Results from real clients</h2><p class="todo">To come: real testimonials and numbers. Nothing is invented here.</p></section>
+<section class="block" id="contact">
+  <div class="kicker">Contact</div><h2>Let's Talk About Your Business</h2>
+  <p style="color:var(--muted)">Book a free 10-minute AI Visibility Check. No charge, no commitment.</p>
+  <form onsubmit="event.preventDefault();alert('Demo only, the form is not connected yet.')">
+    <input placeholder="Your name" aria-label="Your name"><input placeholder="Business name" aria-label="Business name"><input placeholder="Phone" inputmode="tel" aria-label="Phone">
+    <select aria-label="What do you need help with?"><option>What do you need help with?</option><option>Website</option><option>WhatsApp Automations</option><option>AI Visibility</option><option>All of the above</option><option>Not sure</option></select>
+    <button class="btn" type="submit" style="cursor:pointer">Book Your Free Check</button>
+  </form>
+  <p style="color:var(--muted);font-size:14px">Nairobi, Kenya · <span class="todo">To come: phone, WhatsApp number, email, booking link</span></p>
+</section>
+<footer>© Platinum Marketing Agency · Draft for Victor and Spartan to review</footer>
+<a class="wa-float" href="#contact" aria-label="Chat on WhatsApp (number to come)">WA</a>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="photo-story.js"></script>
+</body>
+</html>

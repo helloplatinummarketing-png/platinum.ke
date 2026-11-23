@@ -3,6 +3,10 @@
  */
 import { expect, test, type Page } from "@playwright/test";
 
+// The phone story was retired by the change order (docs/platinum-change-order-photo-story.md).
+// These tests stay switched off until the phone-story code is removed (with Austin's OK).
+test.skip(true, "phone story retired; replaced by the photo story");
+
 const htmlClass = (page: Page) => page.evaluate(() => document.documentElement.className);
 
 test.describe("layer choice", () => {

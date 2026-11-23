@@ -11,9 +11,13 @@
 import type {
   Contact,
   Faq,
+  Href,
   Link,
+  Photo,
+  PhotoKey,
   PricingTable,
   Seo,
+  StoryChapter,
   StoryStop,
 } from "./types";
 
@@ -133,9 +137,9 @@ export const seo: Record<
 /* ------------------------------------------------------------------ */
 
 /**
- * The 7 stops of the 3D phone story. `screen` and `popCards` hold the text
- * drawn on the phone and on the cards that fly out of it.
- * Example businesses ("Your Clinic") are made up and always labelled.
+ * RETIRED (change order, 23 Nov 2026): the old 3D phone story. The home page
+ * now uses `photoStory` below. Kept only until Austin approves removing the
+ * phone-story code; don't edit it.
  */
 export const story: StoryStop[] = [
   {
@@ -470,6 +474,242 @@ export const pricing: Record<"websites" | "whatsapp" | "ai", PricingTable> = {
     ],
   },
 };
+
+/* ------------------------------------------------------------------ */
+/* HOME: the Nairobi photo story (docs/platinum-change-order-photo-story.md) */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The six real Nairobi photos (public/images/nairobi/). All free under the
+ * Unsplash License; credits from docs/demo-v2/PHOTO-CREDITS.md.
+ * Don't replace, re-crop or add photos without asking Austin. No faces, no logos.
+ */
+export const photos: Record<PhotoKey, Photo> = {
+  nw: {
+    alt: "Nairobi skyline at night, with KICC reflected in the Uhuru Park lake",
+    width: 1080,
+    height: 698,
+    desktopHeight: 1293,
+    photographer: "Mustafa Omar",
+    sourceUrl: "https://unsplash.com/photos/body-of-water-near-green-trees-during-night-time-Zkao_QBEjk8",
+  },
+  problem: {
+    alt: "Nairobi CBD at night, seen from a rooftop",
+    width: 1080,
+    height: 681,
+    desktopHeight: 1261,
+    photographer: "Click Smith",
+    sourceUrl: "https://unsplash.com/photos/a-view-of-a-city-at-night-from-the-top-of-a-building-f4QoRqqpiQU",
+  },
+  aerial: {
+    alt: "Daytime aerial view of Nairobi's CBD",
+    width: 1080,
+    height: 718,
+    desktopHeight: 1330,
+    photographer: "Joecalih",
+    sourceUrl: "https://unsplash.com/photos/white-and-black-concrete-building-under-blue-sky-during-daytime-1Uwcoo-ttjY",
+  },
+  trails: {
+    alt: "Nairobi CBD streets at night with car light trails",
+    width: 1080,
+    height: 684,
+    desktopHeight: 1268,
+    photographer: "Click Smith",
+    sourceUrl: "https://unsplash.com/photos/a-view-of-a-city-at-night-from-the-top-of-a-building-Lc9MlKlMMhI",
+  },
+  dusk: {
+    alt: "Nairobi CBD at dusk under storm clouds",
+    width: 1080,
+    height: 697,
+    desktopHeight: 1290,
+    photographer: "Click Smith",
+    sourceUrl: "https://unsplash.com/photos/a-view-of-a-city-at-night-from-the-top-of-a-building-833P7yxEHF8",
+  },
+  kicc: {
+    alt: "Nairobi skyline with KICC by day",
+    width: 1080,
+    height: 810,
+    desktopHeight: 1500,
+    photographer: "Kenny Murgor",
+    sourceUrl: "https://unsplash.com/photos/a-view-of-a-city-with-tall-buildings-vyagy6HJpVE",
+  },
+};
+
+export const photoNotes = {
+  /** Shown on the story (Layers 2 and 3) and under the photos (Layer 1). */
+  illustration: "Real Nairobi photos · light effects and the glowing tower are illustrations",
+  /** Example businesses in the story aren't real (Your Business, ★ 4.9, KSh 2,500…). */
+  examples: "Example businesses, ratings and amounts in the story are illustrations, not real clients.",
+  creditPrefix: "Photo:",
+  creditSuffix: "/ Unsplash",
+  creditsHeading: "Photo credits",
+  creditsIntro: "Photos of Nairobi from Unsplash, free under the Unsplash License.",
+  /** The loader shown while the 3D city story starts (Layer 3 only). */
+  loader: "Switching on the city lights…",
+};
+
+/** "KSh 80,000" or "KSh 30,000 setup", read from the pricing tables so they never drift. */
+const firstTier = (t: PricingTable, setupWord: boolean) =>
+  `KSh ${t.tiers[0].setup.kes.toLocaleString("en-US")}${setupWord ? " setup" : ""}`;
+
+/** WhatsApp link for the closing chapter (falls back to /contact until the number is set). */
+const whatsappLink: Href = contact.whatsappDigits
+  ? `https://wa.me/${contact.whatsappDigits}?text=${encodeURIComponent(contact.whatsappMessage)}`
+  : "/contact";
+
+/**
+ * The seven chapters of the home-page story. Each chapter has one photo.
+ * `steps` light up one at a time as you scroll; `visuals` are the matching
+ * cards in the light layer (same count, same order).
+ */
+export const photoStory: StoryChapter[] = [
+  {
+    id: "hero",
+    kicker: "Websites · WhatsApp · AI visibility",
+    heading: "Your Business Deserves More Customers",
+    headingAccent: "More Customers",
+    body: "We build websites, automate your WhatsApp, and make sure AI recommends you — so customers find you first.",
+    ctas: [
+      { label: "Get a Free AI Visibility Check", href: "/contact" },
+      { label: "See Our Services", href: "/#services" },
+    ],
+    badges: ["Nairobi based", "Prices in KSh", "No long contracts"],
+    photo: "nw",
+  },
+  {
+    id: "problem",
+    number: "01",
+    kicker: "The problem",
+    heading: "Your Competitors Are Getting the Customers You're Missing",
+    steps: [
+      { title: "Customers can't find you online", text: "No website, or a website that doesn't show up anywhere." },
+      { title: "You're missing calls and enquiries", text: "Leads come in, nobody responds fast enough, they go to someone else." },
+      {
+        title: "AI doesn't know you exist",
+        text: "When customers ask ChatGPT or Google AI for recommendations, your name doesn't come up.",
+      },
+    ],
+    visuals: [
+      { title: "No website found for you", sub: 'Search: "dentist near me"' },
+      { title: "3 missed calls", sub: "Nobody replied" },
+      { title: 'AI: "Try Other Clinic"', sub: "Your competitor wins" },
+    ],
+    photo: "problem",
+  },
+  {
+    id: "websites",
+    number: "02",
+    kicker: "Websites",
+    heading: "A website that actually brings you customers",
+    intro: "Watch it go up, floor by floor:",
+    steps: [
+      { text: "Mobile-friendly design" },
+      { text: "Fast on Kenyan data" },
+      { text: "Shows up on Google" },
+      { text: "Ready for AI search" },
+      { text: "WhatsApp click-to-chat" },
+      { text: "Google Maps + contact form" },
+    ],
+    // Short labels beside the tower's floors
+    visuals: [
+      { title: "Mobile-friendly" },
+      { title: "Fast on Kenyan data" },
+      { title: "Shows on Google" },
+      { title: "Ready for AI search" },
+      { title: "WhatsApp chat button" },
+      { title: "Maps + contact form" },
+    ],
+    priceStrip: { label: "Starter website", price: firstTier(pricing.websites, false) },
+    photo: "aerial",
+  },
+  {
+    id: "whatsapp",
+    number: "03",
+    kicker: "WhatsApp automations",
+    heading: "Never miss a customer again",
+    steps: [
+      { title: "Missed call?", text: "A WhatsApp reply in 30 seconds" },
+      { title: "Appointment reminders", text: "that cut no-shows" },
+      { title: "Review requests", text: "after every job" },
+      { title: "Payment reminders", text: "with an M-Pesa link" },
+    ],
+    visuals: [
+      { title: "Hi! Sorry we missed your call.", sub: "How can we help?" },
+      { title: "✓ Reminder: Sat 10am", sub: "Reply YES to confirm" },
+      { title: "★★★★★", sub: "Thanks! Review posted" },
+      { title: "M-PESA", sub: "Pay KSh 2,500 (example)" },
+    ],
+    priceStrip: { label: "Starter automations", price: firstTier(pricing.whatsapp, true) },
+    photo: "trails",
+  },
+  {
+    id: "ai",
+    number: "04",
+    kicker: "AI visibility (GEO)",
+    heading: "When customers ask AI, you're the answer",
+    chat: {
+      question: "Who is the best dentist in Westlands?",
+      answer: { before: "Top pick: ", strong: "Your Business", after: " ★ 4.9, open now, books on WhatsApp." },
+    },
+    steps: [
+      { text: "Google Business Profile" },
+      { text: "Directory listings" },
+      { text: "Fresh reviews" },
+      { text: "FAQ + schema on your site" },
+    ],
+    stepStyle: "chips",
+    // Besides the "AI TOP PICK" card (aiTopPick below), each chip gets a small
+    // label beside a ring pulsing from the tower's base.
+    visuals: [
+      { title: "Google Business Profile" },
+      { title: "Directory listings" },
+      { title: "Fresh reviews" },
+      { title: "FAQ + schema" },
+    ],
+    priceStrip: { label: "AI Starter", price: firstTier(pricing.ai, true) },
+    photo: "dusk",
+  },
+  {
+    id: "how",
+    number: "05",
+    kicker: "How it works",
+    heading: "Three steps to the brightest building on the street",
+    steps: [
+      {
+        title: "We audit your business.",
+        text: "Free AI visibility check. We test how your business shows up across AI platforms and online.",
+      },
+      {
+        title: "We build your systems.",
+        text: "Website, automations, AI visibility — whatever you need, we set it up and get it running.",
+      },
+      {
+        title: "You get more customers.",
+        text: "Leads come in automatically. Enquiries get answered instantly. You focus on doing your work.",
+      },
+    ],
+    visuals: [
+      { title: "1  We audit", sub: "Free AI visibility check" },
+      { title: "2  We build", sub: "Website · WhatsApp · AI" },
+      { title: "3  You grow", sub: "More customers" },
+    ],
+    photo: "kicc",
+  },
+  {
+    id: "cta",
+    number: "06",
+    kicker: "Your turn",
+    heading: "Ready to Get More Customers?",
+    body: "Book a free 10-minute AI Visibility Check. We'll show you exactly how your business shows up on AI — and what you're missing.",
+    ctas: [cta.book, { label: "WhatsApp us", href: whatsappLink }],
+    photo: "kicc",
+  },
+];
+
+/** The AI chapter's main card in the light layer. */
+export const aiTopPick = { badge: "AI TOP PICK", title: "Your Business ★ 4.9" };
+/** The sign on the tower (an illustration, not a real building). */
+export const towerSign = "YOUR BUSINESS";
 
 /* ------------------------------------------------------------------ */
 /* WEBSITES page                                                       */

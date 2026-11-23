@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { contact, footer, nav, site } from "@/content/site";
+import { contact, footer, nav, photoNotes, site } from "@/content/site";
 import { whatsappHref } from "@/lib/format";
 import { Logo } from "./Logo";
 import { ToCome } from "./ToCome";
@@ -72,6 +72,12 @@ export function Footer() {
       <div className="container-page border-t border-line pt-6 pb-28 text-xs text-muted">
         <p>
           {footer.copyright}. {site.tagline}
+        </p>
+        <p className="mt-2">
+          <Link href="/about#photo-credits" className="underline-offset-2 hover:underline">
+            {photoNotes.creditsHeading}
+          </Link>
+          : {photoNotes.creditsIntro}
         </p>
       </div>
     </footer>
