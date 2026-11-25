@@ -1,6 +1,6 @@
 # Platinum Kenya website: handover and final summary
 
-**Date:** 23 November 2026 · **Built by:** Austin, with Claude Code · **Status:** built and tested locally, **not deployed**
+**Date:** 23 November 2026 · **Built by:** Austin, with Claude Code · **Status:** live at https://www.platinummarketingagency.co.uk since 26 Nov 2026
 **Code:** `C:\Dev\platinum-ke` (Git, one commit per build step) · **Review files:** `C:\Dev\platinum-review\`
 
 ---
@@ -135,5 +135,10 @@ The brief's copy makes promises the site states as fact. They're fine **if the s
 
 ## 9. Deploying
 
-Not deployed. Step-by-step instructions are in `README.md`, section 7, including the
-environment variables to add in Vercel. The UK site is a separate Vercel project and isn't affected.
+**Live since 26 Nov 2026.** Vercel team "Platinum marketing", project `platinum-ke`, deployed from
+`C:Devplatinum-ke` with the Vercel CLI (`npx vercel deploy --prod --scope platinummarketing`),
+signed in as the team Owner. Domains `www.platinummarketingagency.co.uk` and the bare domain are on
+this project; neither was attached to the UK project at the time.
+
+GitHub is **not** connected to the Vercel project yet (Victor's Vercel account has no GitHub login),
+so pushing to GitHub does not deploy. The team is on the Hobby plan, which is for non-commercial use only.
