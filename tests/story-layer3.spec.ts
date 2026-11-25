@@ -2,7 +2,7 @@
  * PHOTO STORY, LAYERS 2 AND 3 (JavaScript on; runs in the "js" projects).
  */
 import { expect, test, type Page } from "@playwright/test";
-import { photos, photoStory } from "../content/site";
+import { photoStory } from "../content/site";
 import { CHAPTER_STARTS, stepStartP } from "../lib/story-timing";
 
 /** Scroll so the story is at position p (0..1). */
@@ -30,7 +30,7 @@ const shotDir = (name: string) => `test-results/screens/story-${name.replace(/\W
 /* ------------------------------- Layer 2 ------------------------------- */
 
 test.describe("Layer 2: photo cross-fade, bullets lit by scroll markers, still tower", () => {
-  test("each chapter shows its panel, photo and credit; bullets light in turn", async ({ page }, info) => {
+  test("each chapter shows its panel and photo; bullets light in turn", async ({ page }, info) => {
     test.setTimeout(120_000);
     await page.goto("/?layer=2");
     await expect(page.locator("html")).toHaveClass(/story-flat/);
@@ -46,7 +46,7 @@ test.describe("Layer 2: photo cross-fade, bullets lit by scroll markers, still t
         await expect(panel).toHaveClass(/show/);
         await expect(page.locator(".ch-copy.show")).toHaveCount(1);
         await expect(page.locator(`.story-bg[data-photo="${ch.photo}"]`)).toHaveClass(/on/);
-        await expect(page.locator(".story-credit.on")).toContainText(photos[ch.photo].photographer);
+        await expect(page.locator(".story-credit")).toHaveCount(0); // no photo credits on the site
         if (k >= 0) {
           await expect(page.locator(`#ch-${ch.id} .ch-step[data-step="${k}"]`)).toHaveClass(/\bon\b/);
           if (k > 0) await expect(page.locator(`#ch-${ch.id} .ch-step[data-step="${k - 1}"]`)).toHaveClass(/done/);

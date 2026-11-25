@@ -18,7 +18,6 @@ import { aiTopPick, photoNotes, photos, photoStory, towerSign } from "@/content/
 import type { PhotoKey, StoryChapter } from "@/content/types";
 import { CtaButton } from "@/components/blocks";
 import { CHAPTER_STARTS, STORY_SCREENS, stepStartP } from "@/lib/story-timing";
-import { PhotoCredit } from "./PhotoCredit";
 import { StoryController } from "./StoryController";
 
 /** Heading with the accent words in amber (e.g. "More Customers"). */
@@ -136,11 +135,6 @@ export function PhotoStory() {
           <path />
           <circle r="5" />
         </svg>
-        <div className="story-credits story-stage-only">
-          {bgPhotos.map((key) => (
-            <PhotoCredit key={key} photo={key} className="story-credit" />
-          ))}
-        </div>
         <ol className="story-rail story-stage-only" aria-hidden="true">
           {photoStory.map((ch) => (
             <li key={ch.id}>{ch.number ?? "00"}</li>
@@ -176,9 +170,6 @@ export function PhotoStory() {
                       sizes="(min-width: 896px) 864px, 100vw"
                       className="h-auto w-full rounded-card"
                     />
-                    <figcaption className="mt-2 text-xs text-muted">
-                      <PhotoCredit photo={ch.photo} />
-                    </figcaption>
                   </figure>
 
                   <div className={`ch-copy mt-8 max-w-2xl${isHero ? " show" : ""}`} data-panel={i}>

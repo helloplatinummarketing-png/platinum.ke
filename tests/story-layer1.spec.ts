@@ -5,7 +5,7 @@
 import { expect, test } from "@playwright/test";
 import { photoStory } from "../content/site";
 
-test("all seven chapters show their photo, credit and every bullet, with JavaScript off", async ({ page }, info) => {
+test("all seven chapters show their photo and every bullet, with JavaScript off", async ({ page }, info) => {
   await page.goto("/");
   for (const ch of photoStory) {
     const sec = page.locator(`#ch-${ch.id}`);
@@ -15,7 +15,7 @@ test("all seven chapters show their photo, credit and every bullet, with JavaScr
     await expect(img).toHaveAttribute("src", new RegExp(`/images/nairobi/${ch.photo}-m\\.webp`));
     // the photo actually loaded
     await expect.poll(() => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
-    await expect(sec.locator("figcaption")).toContainText("Unsplash");
+    await expect(sec.locator("figcaption")).toHaveCount(0); // no photo credits on the site
     await expect(sec.locator(".ch-step")).toHaveCount(ch.steps?.length ?? 0);
     for (const s of await sec.locator(".ch-step").all()) await expect(s).toBeVisible();
     // no canvas or lines in Layer 1

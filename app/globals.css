@@ -249,22 +249,7 @@ html.can-3d .story-lead {
   }
 }
 
-/* ---- Credit, chapter rail, illustration note ---- */
-html.story-flat .story-credits {
-  display: block;
-  position: absolute;
-  right: 12px;
-  bottom: 10px;
-  z-index: 6;
-  font-size: 10px;
-  color: rgb(255 255 255 / 0.6);
-}
-.story-credit {
-  display: none;
-}
-.story-credit.on {
-  display: inline;
-}
+/* ---- Chapter rail, illustration note ---- */
 html.story-flat .story-rail {
   display: flex;
   position: absolute;
@@ -295,12 +280,6 @@ html.story-flat .story-tag {
   color: rgb(255 255 255 / 0.45);
 }
 @media (max-width: 759px) {
-  html.story-flat .story-credits {
-    right: auto;
-    left: 12px;
-    top: 8px;
-    bottom: auto;
-  }
   html.story-flat .story-rail {
     right: 6px;
     top: 26%;

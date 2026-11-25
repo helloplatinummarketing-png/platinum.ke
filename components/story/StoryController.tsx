@@ -46,7 +46,6 @@ export function StoryController({ chapters, bgPhotos, aiQuestion, aiTopPick, tow
     const panels = q<HTMLElement>(".ch-copy[data-panel]");
     const stepLists = chapters.map((c) => q<HTMLElement>(`#ch-${c.id} .ch-step`));
     const bgs = bgPhotos.map((k) => story.querySelector<HTMLElement>(`.story-bg[data-photo="${k}"]`)!);
-    const credits = q<HTMLElement>(".story-credit");
     const rail = q<HTMLElement>(".story-rail li");
     const aiIdx = chapters.findIndex((c) => c.id === "ai");
     const aiQ = story.querySelector<HTMLElement>(".ch-q");
@@ -84,8 +83,6 @@ export function StoryController({ chapters, bgPhotos, aiQuestion, aiTopPick, tow
       lastCh = ci;
       story.dataset.ch = String(ci);
       rail.forEach((li, j) => li.classList.toggle("on", j === ci));
-      const b = bgOf(ci);
-      credits.forEach((c, j) => c.classList.toggle("on", j === b));
       // Analytics: how far people scroll (story-ch-01 … story-ch-06)
       if (ci > 0 && !reached.has(ci)) {
         reached.add(ci);
