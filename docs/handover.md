@@ -136,7 +136,7 @@ The brief's copy makes promises the site states as fact. They're fine **if the s
 ## 9. Deploying
 
 **Live since 26 Nov 2026.** Vercel team "Platinum marketing", project `platinum-ke`, deployed from
-`C:Devplatinum-ke` with the Vercel CLI (`npx vercel deploy --prod --scope platinummarketing`),
+`C:\Dev\platinum-ke` with the Vercel CLI (`npx vercel deploy --prod --scope platinummarketing`),
 signed in as the team Owner. Domains `www.platinummarketingagency.co.uk` and the bare domain are on
 this project; neither was attached to the UK project at the time.
 
