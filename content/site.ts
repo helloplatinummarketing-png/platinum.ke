@@ -43,12 +43,10 @@ export const site = {
 } as const;
 
 export const contact: Contact = {
-  // The previous site's number and email, per Austin (23 Nov 2026).
-  // It's a UK number, shown in international form so Kenyan visitors can call/WhatsApp it.
-  // Confirmed on WhatsApp by Austin (23 Nov 2026).
-  phoneDisplay: "+44 7594 217753",
-  phoneDigits: "447594217753",
-  whatsappDigits: "447594217753",
+  // Kenyan number for calls and WhatsApp (26 Nov 2026). Email is the previous site's.
+  phoneDisplay: "+254 185 587 728",
+  phoneDigits: "254185587728",
+  whatsappDigits: "254185587728",
   whatsappMessage: "Hi Platinum, I'd like my free AI Visibility Check.",
   email: "helloplatinummarketing@gmail.com",
   bookingUrl: "https://cal.com/platinummarketingagency/15min", // the previous site's booking link (Austin, 23 Nov 2026)

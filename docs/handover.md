@@ -77,11 +77,11 @@
 
 ## 5. "To come": what Victor needs to send
 
-**Settled on 23 Nov (Austin):** the site uses the previous site's number (**+44 7594 217753**),
+**Settled on 23 Nov (Austin), number changed 26 Nov:** the site uses the Kenyan number **+254 185 587 728**, the previous site's
 email (**helloplatinummarketing@gmail.com**) and domain (**www.platinummarketingagency.co.uk**).
 
 1. **Brand:** colours, fonts and final logo (placeholders now)
-2. **Confirm +44 7594 217753 is on WhatsApp** (the WhatsApp buttons use it)
+2. **Confirm +254 185 587 728 is on WhatsApp** (the WhatsApp buttons use it)
 3. **Calendly / Cal.com booking link**
 4. **WhatsApp tool cost per month** (Meta changed pricing in October 2026)
 5. **Confirm** customers can keep their existing WhatsApp number in Kenya

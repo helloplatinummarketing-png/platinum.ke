@@ -47,11 +47,11 @@ test("no invented testimonials or stats, and no UK-trades copy", () => {
   expect(allText).not.toMatch(/Bristol|\bUK trades?\b|plumber|electrician/i);
 });
 
-test("contact details are the previous site's number and email, in a form Kenyan visitors can use", () => {
-  // Austin's decision (23 Nov 2026): reuse the previous site's number, email and domain.
-  expect(content.contact.phoneDisplay).toBe("+44 7594 217753");
-  expect(content.contact.phoneDigits).toBe("447594217753"); // tel:+447594217753 works from Kenya
-  expect(content.contact.whatsappDigits).toBe("447594217753"); // wa.me needs the country code, no "+" or 0
+test("contact details use the Kenyan number, in a form visitors can call and WhatsApp", () => {
+  // 26 Nov 2026: Kenyan number; email and domain stay the previous site's.
+  expect(content.contact.phoneDisplay).toBe("+254 185 587 728");
+  expect(content.contact.phoneDigits).toBe("254185587728"); // tel:+254185587728
+  expect(content.contact.whatsappDigits).toBe("254185587728"); // wa.me needs the country code, no "+" or 0
   expect(content.contact.email).toBe("helloplatinummarketing@gmail.com");
   expect(content.site.url).toBe("https://www.platinummarketingagency.co.uk");
 });
